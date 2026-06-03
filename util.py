@@ -101,9 +101,13 @@ def get_CLIP_model(
     
     import clip
     
-    model, _ = clip.load(model_name)
+    model, preprocess = clip.load(model_name)
+    print(preprocess)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(CLIP_PARAMS[model_name])
+    print(spatial)
+    print(normalize)
+    raise
     return model, spatial, normalize
 
 
@@ -184,11 +188,12 @@ if __name__ == "__main__":
     
     
     model, spatial, normalize = get_CLIP_model("ViT-B/32")
+    
     x = torch.randn(1, 3, 224, 224)
     with open(IMAGENET_PROMPT_PATH, 'r') as f:
         class_prompts = json.load(f)
     
-    img = Image.open(r"imgs/tabby.jpg")
+    img = Image.open(r"imgs/tabby.jpg").convert("RGB")
     img = spatial(img).unsqueeze(0)
     
     
