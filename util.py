@@ -162,7 +162,7 @@ class VLModelWrapper:
         t = clip.tokenize(t).cuda(self.device)
         text_features = self.model.encode_text(t)
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
-        return text_features
+        return text_features.detach().cpu()
 
 
 
