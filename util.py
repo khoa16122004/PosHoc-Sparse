@@ -15,7 +15,6 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 from PIL import Image
-from brain_arch import *
 from constant import CLIP_PARAMS
 import clip
 from tqdm import tqdm
