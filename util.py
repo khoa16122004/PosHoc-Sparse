@@ -189,7 +189,7 @@ if __name__ == "__main__":
     with open(IMAGENET_PROMPT_PATH, 'r') as f:
         class_prompts = json.load(f)
     
-    img = Image.open(r"E:\Khoatn\SPARSE_attack\ga_sparse\imgs\tabby.jpg")
+    img = Image.open(r"imgs/tabby.jpg")
     img = spatial(img).unsqueeze(0)
     
     
