@@ -139,7 +139,11 @@ class VLModelWrapper:
         textual_class_features = []
         print("Extract class_text_features...")
         for class_name in self.class_prompts:
+            
             prompts = self.class_prompts[class_name]
+            prompts = [
+                f"a photo of a {class_name}",
+            ] + prompts
             textual_class_features.append(self.text_encode(prompts).mean(dim=0))        
         
         self.class_text_features = torch.stack(textual_class_features).to(self.device)
@@ -197,3 +201,8 @@ if __name__ == "__main__":
     logits = model.predict(img)
     print(logits.shape)
     print(logits.argmax(dim=-1))
+    
+    # with open(IMAGENET_PROMPT_PATH, 'r') as f:
+    #     class_prompts = json.load(f)
+        
+    # print(list(class_prompts.keys())[333])
