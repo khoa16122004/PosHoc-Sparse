@@ -190,7 +190,7 @@ if __name__ == "__main__":
     with open(IMAGENET_PROMPT_PATH, 'r') as f:
         class_prompts = json.load(f)
     
-    img = Image.open(r"imgs/dog.jpg").convert("RGB")
+    img = Image.open(r"datastore/elo/quanphm/dataset/ImageNet1K/val/n01440764/ILSVRC2012_val_00023559.JPEG").convert("RGB")
     img = spatial(img).unsqueeze(0)
     
     
