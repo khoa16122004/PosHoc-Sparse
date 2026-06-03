@@ -140,7 +140,7 @@ class VLModelWrapper:
         print("Extract class_text_features...")
         for class_name in self.class_prompts:
             prompts = self.class_prompts[class_name]
-            textual_class_features.append(self.text_encode(prompts))        
+            textual_class_features.append(self.text_encode(prompts).mean(dim=0))        
         
         self.class_text_features = torch.stack(textual_class_features).to(self.device)
         print("Class text feautures shape: ", self.class_text_features.shape)
