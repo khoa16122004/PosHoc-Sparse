@@ -184,7 +184,7 @@ if __name__ == "__main__":
     # model = get_torchvision_model("resnet18", pretrained=True)
     
     
-    model, spatial, normalize = get_CLIP_model("ViT-B/32")
+    model, spatial, normalize = get_CLIP_model("ViT-B/16")
     
     x = torch.randn(1, 3, 224, 224)
     with open(IMAGENET_PROMPT_PATH, 'r') as f:
