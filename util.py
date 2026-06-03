@@ -102,12 +102,9 @@ def get_CLIP_model(
     import clip
     
     model, preprocess = clip.load(model_name)
-    print(preprocess)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(CLIP_PARAMS[model_name])
-    print(spatial)
-    print(normalize)
-    raise
+   
     return model, spatial, normalize
 
 
