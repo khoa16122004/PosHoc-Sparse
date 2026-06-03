@@ -138,7 +138,7 @@ class VLModelWrapper:
         # extract text_feature
         textual_class_features = []
         print("Extract class_text_features...")
-        for class_name in tqdm(self.class_prompts):
+        for class_name in self.class_prompts:
             text_features = []            
             for prompt in self.class_prompts[class_name]:
                 fea = self.text_encode([prompt])
