@@ -1,23 +1,17 @@
 from __future__ import annotations
 
 import json
-from typing import Optional, Tuple
-from torchvision import transforms
-from constant import IMAGENET_PROMPT_PATH, CLIP_PARAMS
-import torchvision.models as tv_models
-from torchvision.models import get_model_weights
+from constant import IMAGENET_PROMPT_PATH, CLIP_PARAMS, OPENCLIP_PARAMS
 import torchvision.transforms as T
-from LossFunctions import UnTargeted, Targeted
 import numpy as np
-import argparse
-import os
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 from PIL import Image
-from constant import CLIP_PARAMS
+from torchvision.datasets import ImageFolder
 import clip
-from tqdm import tqdm
+import open_clip
+import torchvision.models as tv_models
 
 _DATASET_NUM_CLASSES = {
     "imagenet": 1000,
@@ -67,109 +61,26 @@ def split_VLMs_transform(
 
 
 
-def get_torchvision_model(
-        model_name,
-        pretrained=True,
-        num_classes=None,
-    ):
-    """
-    Get vision model
-    """
-    
-
-    model_fn = getattr(tv_models, model_name)
-
-    if pretrained:
-        weights_enum = get_model_weights(model_name).DEFAULT
-        model = model_fn(weights=weights_enum)
-
-        spatial, normalize = split_transform_from_weights(weights_enum)
-
-        return model, spatial, normalize
-
-    kwargs = {}
-    if num_classes is not None:
-        kwargs["num_classes"] = num_classes
-
-    model = model_fn(weights=None, **kwargs)
-
-    return model, None, None
-
 def get_CLIP_model(
     model_name,
     ):
-    
-    import clip
-    
     model, preprocess = clip.load(model_name)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(CLIP_PARAMS[model_name])
-   
+    print(preprocess)
     return model, spatial, normalize
 
 
-
-
-
-
-class VisionModelWrapper:
-    "Vison Wrapper for vision-only models, e.g., ResNet, ViT, etc."
+def get_OPENCLIP_model(
+    model_name,
+    ):
     
     
-    def __init__(self, model, normalize, device):
-        self.model = model
-        self.normalize = normalize
-        self.device = device
-
-    def predict(self, x):
-        x = x.to(self.device)
-        x = self.normalize(x)
-        with torch.no_grad():
-            logits = self.model(x)
-        return logits.detach().cpu()
-    
-    
-class VLModelWrapper:
-    def __init__(self, model, normalize, class_prompts, device):
-        self.model = model
-        self.normalize = normalize
-        self.class_prompts = class_prompts
-        self.device = device
-        
-        # extract text_feature
-        textual_class_features = []
-        print("Extract class_text_features...")
-        for class_name in self.class_prompts:
-            
-            prompts = self.class_prompts[class_name]
-            prompts = [
-                f"a photo of a {class_name}",
-            ] + prompts
-            textual_class_features.append(self.text_encode(prompts).mean(dim=0))        
-        
-        self.class_text_features = torch.stack(textual_class_features).to(self.device)
-        print("Class text feautures shape: ", self.class_text_features.shape)
-        
-    def predict(self, x):
-        x = x.to(self.device)
-        x = self.normalize(x)
-        visual_features = self.vision_encode(x)
-        logits = visual_features @ self.class_text_features.T       
-        return logits.detach().cpu()
-    
-    
-    def vision_encode(self, x):
-        vision_features = self.model.encode_image(x)
-        vision_features = vision_features / vision_features.norm(dim=-1, keepdim=True)
-        return vision_features
-    
-    def text_encode(self, t): # t lists
-        t = clip.tokenize(t).cuda(self.device)
-        text_features = self.model.encode_text(t)
-        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
-        return text_features.detach().cpu()
-
-
+    model, _, preprocess = open_clip.create_model_and_transforms(model_name, pretrained='laion2b_s34b_b79k')
+    tokenizer = open_clip.get_tokenizer(model_name)
+    model = model.cuda()
+    spatial, normalize = split_VLMs_transform(OPENCLIP_PARAMS[model_name])
+    return model, spatial, normalize, tokenizer
 
 
 def get_intersection(clean_map, adv_map):
@@ -180,11 +91,22 @@ def get_intersection(clean_map, adv_map):
     return float(inter / union)
 
 
+class ImageNetVal(ImageFolder):
+	def __getitem__(self, index: int):
+		sample, target = super().__getitem__(index)
+		path, _ = self.samples[index]
+		return sample, target, path
+
+
+
+
+
 if __name__ == "__main__":
     # model = get_torchvision_model("resnet18", pretrained=True)
     
     
-    model, spatial, normalize = get_CLIP_model("ViT-B/16")
+    model, spatial, normalize, tokenizer = get_OPENCLIP_model("ViT-B/32")
+
     
     x = torch.randn(1, 3, 224, 224)
     with open(IMAGENET_PROMPT_PATH, 'r') as f:
@@ -198,13 +120,9 @@ if __name__ == "__main__":
         model, 
         normalize,
         class_prompts,
+        tokenizer=tokenizer,
         device="cuda"
         )    
     logits = model.predict(img)
     print(logits.shape)
     print(logits.argmax(dim=-1))
-    
-    # with open(IMAGENET_PROMPT_PATH, 'r') as f:
-    #     class_prompts = json.load(f)
-        
-    # print(list(class_prompts.keys())[333])

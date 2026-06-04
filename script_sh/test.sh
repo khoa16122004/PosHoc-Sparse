@@ -49,4 +49,9 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 # CHẠY CODE
 # =========================================================
 
-python util.py
+python evaluate.py \
+    --val-dir datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name resnet18 \
+    --batch-size 128 \
+    --num-workers 4 \
+    --output-dir evaluate_results \

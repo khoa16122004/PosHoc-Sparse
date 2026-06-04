@@ -1,5 +1,5 @@
-IMAGENET_PROMPT_PATH = "description/imagenet10k.json"
-
+IMAGENET_PROMPT_PATH = "description/imgnet1k_val_annotations.json"
+DEFAULT_VAL_DIR = "/datastore/elo/quanphm/dataset/ImageNet1K/val"
 
 
 VISION_MODELS = [
@@ -53,6 +53,35 @@ OPENCLIP_MODELS = [
 ]
 
 
+OPENCLIP_PARAMS = {
+    'ViT-B/32': {
+        'size': 224,
+        'crop_size': 224,
+        'mean': [0.48145466, 0.4578275, 0.40821073],
+        'std': [0.26862954, 0.26130258, 0.27577711]
+    },
+    
+    'ViT-B/16': {
+        'size': 224,
+        'crop_size': 224,
+        'mean': [0.48145466, 0.4578275, 0.40821073],
+        'std': [0.26862954, 0.26130258, 0.27577711]
+    },
+    
+    
+    'ViT-L/14': {
+        'size': 224,
+        'crop_size': 224,
+        'mean': [0.48145466, 0.4578275, 0.40821073],
+        'std': [0.26862954, 0.26130258, 0.27577711]
+    }
+    
+    # ....
+
+    
+ 
+}
+
 
 SIGLIP_MODELS = [
     "google/siglip-base-patch16-224",
@@ -60,5 +89,20 @@ SIGLIP_MODELS = [
 ]
 
 
+SIGLIP_PARAMS = {
+    "google/siglip-base-patch16-224": {
+        "size": 224,
+        "crop_size": 224,
+        "mean": [0.5, 0.5, 0.5],
+        "std": [0.5, 0.5, 0.5]
+    },
+    "google/siglip-large-patch16-256": {
+        "size": 256,
+        "crop_size": 256,
+        "mean": [0.5, 0.5, 0.5],
+        "std": [0.5, 0.5, 0.5] 
+    }
+}
+    
 
 
