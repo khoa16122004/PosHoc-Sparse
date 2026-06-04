@@ -49,35 +49,51 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 # CHẠY CODE
 # =========================================================
 
+# python script/evaluate.py \
+#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+#     --model-name resnet18 \
+#     --batch-size 512 \
+#     --num-workers 4 \
+#     --output-dir evaluate_results \
+#     --type torchvision
+
+
+# python script/evaluate.py \
+#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+#     --model-name vgg16 \
+#     --batch-size 512 \
+#     --num-workers 4 \
+#     --output-dir evaluate_results \
+#     --type torchvision
+
+
+# python script/evaluate.py \
+#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+#     --model-name densenet121 \
+#     --batch-size 512 \
+#     --num-workers 4 \
+#     --output-dir evaluate_results \
+#     --type torchvision
+
+# python script/evaluate.py \
+#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+#     --model-name vit_b_32 \
+#     --batch-size 512 \
+#     --num-workers 4 \
+#     --output-dir evaluate_results \
+#     --type torchvision
+
 python script/evaluate.py \
     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name resnet18 \
+    --model-name vit_b_16 \
     --batch-size 512 \
     --num-workers 4 \
     --output-dir evaluate_results \
     --type torchvision
 
-
 python script/evaluate.py \
     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name vgg16 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type torchvision
-
-
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name densenet121 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type torchvision
-
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name vit_b_32 \
+    --model-name vit_l_14 \
     --batch-size 512 \
     --num-workers 4 \
     --output-dir evaluate_results \
