@@ -72,7 +72,7 @@ class SIGLIPWrapper(VLModelWrapper):
 
     def vision_encode(self, x):
         image_features = self.model.get_image_features(pixel_values=x, return_dict=False)
-        print(image_features)
+        a , b = image_features
         raise
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         return image_features
