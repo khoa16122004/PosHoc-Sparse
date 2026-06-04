@@ -83,17 +83,17 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 #     --output-dir evaluate_results \
 #     --type torchvision
 
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name vit_b_16 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type torchvision
+# python script/evaluate.py \
+#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+#     --model-name vit_b_16 \
+#     --batch-size 512 \
+#     --num-workers 4 \
+#     --output-dir evaluate_results \
+#     --type torchvision
 
 python script/evaluate.py \
     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name vit_l_14 \
+    --model-name vit_l_16\
     --batch-size 512 \
     --num-workers 4 \
     --output-dir evaluate_results \
