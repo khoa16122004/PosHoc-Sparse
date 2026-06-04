@@ -116,7 +116,11 @@ def get_SIGLIP_model(
     bnb_config = BitsAndBytesConfig(load_in_4bit=True)
     model = AutoModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="auto", attn_implementation="sdpa")
     processor = AutoProcessor.from_pretrained(model_name)
-    print(processor)
+    image_processor = processor.image_processor
+    tokenizer = processor.tokenizer
+    print(image_processor)
+    print(tokenizer)
+    
     raise
 
     
