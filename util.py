@@ -94,9 +94,9 @@ def get_OPENCLIP_model(
     model_name,
     ):
     
-    
-    model, _, preprocess = open_clip.create_model_and_transforms(model_name, pretrained='laion2b_s34b_b79k')
-    tokenizer = open_clip.get_tokenizer(model_name)
+    model_name_ = model_name.replace("_", "-")
+    model, _, preprocess = open_clip.create_model_and_transforms(model_name_, pretrained='laion2b_s34b_b79k')
+    tokenizer = open_clip.get_tokenizer(model_name_)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(OPENCLIP_PARAMS[model_name])
     return model, spatial, normalize, tokenizer
