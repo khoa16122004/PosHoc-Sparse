@@ -166,7 +166,7 @@ def main(args):
         )
 
     output_dir = Path(output_dir)
-    if args.model_type == "SigLIP":
+    if args.model_type == "SIGLIP":
         resolve_name = args.model_name.replace("/", "_")
         samples_output_path = output_dir / f"sample_attacks_{resolve_name}.json"
     else: 
