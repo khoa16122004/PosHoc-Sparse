@@ -145,31 +145,24 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 #     --type OPENCLIP
 
 
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  ViT-L_14 \
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type OPENCLIP
-
-
 python script/evaluate.py \
     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name  google/siglip-base-patch16-224 \
+    --model-name  ViT-L_14 \
     --batch-size 512 \
     --num-workers 4 \
     --output-dir evaluate_results \
-    --type SIGLIP
+    --type OPENCLIP
 
 
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  ViT-L_14 \
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type OPENCLIP
+# s
+
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name  ViT-L_14 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type OPENCLIP
 
 
 

@@ -166,7 +166,11 @@ def main(args):
         )
 
     output_dir = Path(output_dir)
-    samples_output_path = output_dir / f"sample_attacks_{args.model_name}.json"
+    if args.model_type == "SigLIP":
+        resolve_name = args.model_name.replace("/", "_")
+        samples_output_path = output_dir / f"sample_attacks_{resolve_name}.json"
+    else: 
+        samples_output_path = output_dir / f"sample_attacks_{args.model_name}.json"
     performance_output_path = output_dir / f"val_performance_{args.model_name}.json"
     samples_output_path.write_text(json.dumps(correct_samples, indent=2), encoding="utf-8")
     performance_output_path.write_text(
