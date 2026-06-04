@@ -34,7 +34,7 @@ def parse_args():
         "--type",
         type=str,   
         required=True,
-        choices=["torchvision", "CLIP", "OPENCLIP"],
+        choices=["torchvision", "CLIP", "OPENCLIP", "SIGLIP"],
     )
 
     parser.add_argument(
