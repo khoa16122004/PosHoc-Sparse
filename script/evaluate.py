@@ -17,7 +17,6 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_torchvision_model
 from wrapper import VisionModelWrapper, VLModelWrapper
-from wrapper import VLModelWrapper
 from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH
 from torch.utils.data import DataLoader
 
@@ -97,7 +96,7 @@ def main(args):
         
     elif args.type == "CLIP":
         model, spatial, normalize = get_CLIP_model(args.model_name)
-        model = VLModelWrapper(model, normalize, None)
+        model = VLModelWrapper(model, normalize, class_prompts)
 
         
     elif args.type == "OPENCLIP":
