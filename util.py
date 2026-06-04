@@ -66,15 +66,12 @@ def get_torchvision_model(
     """
     Get vision model
     """
-    
 
     model_fn = getattr(tv_models, model_name)
-
     weights_enum = tv_models.get_model_weights(model_name).IMAGENET1K_V1
     model = model_fn(weights=weights_enum)
-
     spatial, normalize = split_transform_from_weights(weights_enum)
-
+    model.eval()
     return model, spatial, normalize
 
 
@@ -88,6 +85,7 @@ def get_CLIP_model(
     model, preprocess = clip.load(model_name)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(CLIP_PARAMS[model_name])
+    model.eval()
     print(preprocess)
     return model, spatial, normalize
 
