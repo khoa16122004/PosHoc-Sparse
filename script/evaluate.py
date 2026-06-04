@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 import argparse
-from html import parser
 import json
 import sys
 from pathlib import Path
-from unittest import loader
-from unittest import loader
 from tqdm import tqdm
 import torch
 import os
@@ -15,9 +12,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_torchvision_model
-from wrapper import VisionModelWrapper, VLModelWrapper
-from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH, IMAGENET_FOLDER2_CLASSNAME, CLIP_PARAMS, OPENCLIP_PARAMS
+from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_SIGLIP_model, get_torchvision_model
+from wrapper import SIGLIPWrapper, VisionModelWrapper, VLModelWrapper
+from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH, IMAGENET_FOLDER2_CLASSNAME
 from torch.utils.data import DataLoader
 
 
@@ -104,12 +101,16 @@ def main(args):
         model, spatial, normalize, tokenizer = get_OPENCLIP_model(args.model_name)
         model = VLModelWrapper(model, normalize, class_prompts, tokenizer)
     
+    elif args.type == "SIGLIP":
+        model, spatial, normalize, tokenizer = get_SIGLIP_model(args.model_name)
+        model = SIGLIPWrapper(model, normalize, class_prompts, tokenizer)
+    
     
     # Dataset and dataloader    
     dataset = ImageNetVal(args.val_dir, transform=spatial)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
     folder_class_list = dataset.classes
-    if args.type in ["CLIP", "OPENCLIP"]:
+    if args.type in ["CLIP", "OPENCLIP", "SIGLIP"]:
         model.set_fodler_class(folder_class_list, folder_2_class_name)
         model.extract_class_text_features()
     

@@ -36,13 +36,9 @@ class VLModelWrapper:
         for class_name in self.folder_class_list:
             class_real_name = self.folder_2_class_name[class_name][1].replace("_", " ")
             prompts_ = self.class_prompts[class_name]
-            # prompts = [
-            #     f"a photo of {class_real_name}. {prompt}" for prompt in prompts_
-            # ]
             prompts = [
                 f"{class_real_name} which has {prompt}" for prompt in prompts_
             ]
-            # print(prompts)
             textual_class_features.append(self.text_encode(prompts).mean(dim=0))        
         
         self.class_text_features = torch.stack(textual_class_features).to(self.device)
@@ -70,18 +66,21 @@ class VLModelWrapper:
         return text_features.detach().cpu()
     
     
-class SIGLIPWrapper:
-    def __init__(self):
-        pass
-    
-    def predict(self, x):
-        pass
+class SIGLIPWrapper(VLModelWrapper):
+    def __init__(self, model, normalize, class_prompts, tokenizer=None, device='cuda'):
+        super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
 
     def vision_encode(self, x):
-        pass
+        image_features = self.model.get_image_features(pixel_values=x)
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+        return image_features
     
     def text_encode(self, t):
-        pass
+        inputs = self.tokenizer(t, padding=True, truncation=True, return_tensors="pt")
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        text_features = self.model.get_text_features(**inputs)
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+        return text_features.detach().cpu()
     
     
 class BEIT3Wrapper:

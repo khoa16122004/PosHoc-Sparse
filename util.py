@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from constant import IMAGENET_PROMPT_PATH, CLIP_PARAMS, OPENCLIP_PARAMS
+from constant import IMAGENET_PROMPT_PATH, CLIP_PARAMS, OPENCLIP_PARAMS, SIGLIP_PARAMS
 import torchvision.transforms as T
 import numpy as np
 import torch
@@ -12,7 +12,7 @@ from torchvision.datasets import ImageFolder
 import clip
 import open_clip
 import torchvision.models as tv_models
-from transformers import AutoModel, AutoProcessor, BitsAndBytesConfig
+from transformers import AutoModel, AutoProcessor, AutoTokenizer, BitsAndBytesConfig
 
 _DATASET_NUM_CLASSES = {
     "imagenet": 1000,
@@ -48,7 +48,7 @@ def split_transform_from_weights(weights):
 def split_VLMs_transform(
     param
 ):
-    
+    # CLIP, OPENCLIP, SIGLIP
     spatial = T.Compose([
         T.Resize(param['size'], interpolation=T.InterpolationMode.BILINEAR),
         T.CenterCrop(param['crop_size']),
@@ -58,6 +58,8 @@ def split_VLMs_transform(
     normalize = T.Normalize(mean=param['mean'], std=param['std'])
 
     return spatial, normalize
+
+
 
 
 
@@ -115,18 +117,12 @@ def get_SIGLIP_model(
     ):
     bnb_config = BitsAndBytesConfig(load_in_4bit=True)
     model = AutoModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="auto", attn_implementation="sdpa")
-    processor = AutoProcessor.from_pretrained(model_name)
-    image_processor = processor.image_processor
-    tokenizer = processor.tokenizer
-    print(image_processor)
-    print(tokenizer)
-    
-    raise
-
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    spatial, normalize = split_VLMs_transform(SIGLIP_PARAMS[model_name])
+    model = model.cuda()
+    return model, spatial, normalize, tokenizer
     
     
-    pass
-
 def get_BEIT3_model(
     model_name,
     ):
