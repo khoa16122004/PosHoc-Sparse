@@ -35,10 +35,10 @@ class VLModelWrapper:
         print("Extract class_text_features...")
         for class_name in self.folder_class_list:
             class_real_name = self.folder_2_class_name[class_name][1].replace("_", " ")
-            prompts = self.class_prompts[class_name]
+            prompts_ = self.class_prompts[class_name]
             prompts = [
-                f"a photo of {class_real_name}.",
-            ] + prompts
+                f"a photo of {class_real_name}. {prompt}" for prompt in prompts_
+            ]
             print(prompts)
             textual_class_features.append(self.text_encode(prompts).mean(dim=0))        
         
