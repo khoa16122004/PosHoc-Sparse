@@ -32,7 +32,7 @@ class VLModelWrapper:
     
     def extract_class_text_features(self):
         textual_class_features = []
-        print("Extract class_text_features...")
+        # print("Extract class_text_features...")
         for class_name in self.folder_class_list:
             class_real_name = self.folder_2_class_name[class_name][1].replace("_", " ")
             prompts_ = self.class_prompts[class_name]
@@ -42,11 +42,11 @@ class VLModelWrapper:
             prompts = [
                 f"{class_real_name} which has {prompt}" for prompt in prompts_
             ]
-            print(prompts)
+            # print(prompts)
             textual_class_features.append(self.text_encode(prompts).mean(dim=0))        
         
         self.class_text_features = torch.stack(textual_class_features).to(self.device)
-        print("Class text feautures shape: ", self.class_text_features.shape)
+        # print("Class text feautures shape: ", self.class_text_features.shape)
         
     def predict(self, x):
         x = self.normalize(x)
