@@ -34,7 +34,7 @@ def split_transform_from_weights(weights):
     std = weights.transforms().std
 
     spatial = T.Compose([
-        T.Resize(resize),
+        T.Resize(resize, interpolation=T.InterpolationMode.BILINEAR),
         T.CenterCrop(crop),
         T.ToTensor()
     ])
@@ -49,7 +49,7 @@ def split_VLMs_transform(
 ):
     
     spatial = T.Compose([
-        T.Resize(param['size']),
+        T.Resize(param['size'], interpolation=T.InterpolationMode.BILINEAR),
         T.CenterCrop(param['crop_size']),
         T.ToTensor()
     ])

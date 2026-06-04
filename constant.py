@@ -6,7 +6,7 @@ VISION_MODELS = [
     'resnet18',
     'vgg16',
     'densenet121',
-    'ViT-B-32',    
+    'vit_b_32',    
 ]
 
 
