@@ -82,6 +82,7 @@ def get_torchvision_model(
 def get_CLIP_model(
     model_name,
     ):
+    model_name = model_name.replace("/", "_")
     model, preprocess = clip.load(model_name)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(CLIP_PARAMS[model_name])
