@@ -80,12 +80,7 @@ class SIGLIPWrapper(VLModelWrapper):
     def text_encode(self, t):
         inputs = self.tokenizer(t, padding=True, truncation=True, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        text_features = self.model.get_text_features(**inputs, return_dict=False)
-        a, b = text_features
-        print(a.shape)
-        print(b.shape)
-        print(text_features)
-        raise
+        text_features = self.model.get_text_features(**inputs, return_dict=False)[1]
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
     
