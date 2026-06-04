@@ -7,22 +7,20 @@ class VisionModelWrapper:
     "Vison Wrapper for vision-only models, e.g., ResNet, ViT, etc."
     
     
-    def __init__(self, model, normalize, device):
-        self.model = model
+    def __init__(self, model, normalize, device='cuda'):
+        self.model = model.to(device)
         self.normalize = normalize
         self.device = device
 
     def predict(self, x):
-        x = x.to(self.device)
         x = self.normalize(x)
-        with torch.no_grad():
-            logits = self.model(x)
-        return logits.detach().cpu()
+        logits = self.model(x)
+        return logits
     
     
 class VLModelWrapper:
     def __init__(self, model, normalize, class_prompts, tokenizer=None, device='cuda'):
-        self.model = model
+        self.model = model.to(device)
         self.normalize = normalize
         self.class_prompts = class_prompts
         self.tokenizer = tokenizer
@@ -43,11 +41,10 @@ class VLModelWrapper:
         print("Class text feautures shape: ", self.class_text_features.shape)
         
     def predict(self, x):
-        x = x.to(self.device)
         x = self.normalize(x)
         visual_features = self.vision_encode(x)
         logits = visual_features @ self.class_text_features.T       
-        return logits.detach().cpu()
+        return logits
     
     
     def vision_encode(self, x):

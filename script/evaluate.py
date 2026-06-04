@@ -10,7 +10,12 @@ from unittest import loader
 from tqdm import tqdm
 import torch
 import os
-from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_mode, get_torchvision_model
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_torchvision_model
 from wrapper import VisionModelWrapper, VLModelWrapper
 from wrapper import VLModelWrapper
 from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH
@@ -87,19 +92,17 @@ def main(args):
     
     # get model_name
     if args.type == "torchvision":
-        from wrapper import get_torchvision_model
-        model = get_torchvision_model(args.model_name, pretrained=True).cuda()
-        model = VisionModelWrapper(model, None, None)
+        model, spatial, normalize = get_torchvision_model(args.model_name)
+        model = VisionModelWrapper(model, normalize)
         
     elif args.type == "CLIP":
         model, spatial, normalize = get_CLIP_model(args.model_name)
-        model = VLModelWrapper(model, spatial, normalize, None)
+        model = VLModelWrapper(model, normalize, None)
 
         
     elif args.type == "OPENCLIP":
-        from wrapper import get_OPENCLIP_model
         model, spatial, normalize, tokenizer = get_OPENCLIP_model(args.model_name)
-        model = VLModelWrapper(model, spatial, normalize, class_prompts, tokenizer)
+        model = VLModelWrapper(model, normalize, class_prompts, tokenizer)
     
     
     # Dataset and dataloader    
@@ -157,6 +160,7 @@ def main(args):
             }
         )
 
+    output_dir = Path(output_dir)
     samples_output_path = output_dir / f"sample_attacks_{args.model_name}.json"
     performance_output_path = output_dir / f"val_performance_{args.model_name}.json"
     samples_output_path.write_text(json.dumps(correct_samples, indent=2), encoding="utf-8")

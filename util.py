@@ -60,6 +60,27 @@ def split_VLMs_transform(
 
 
 
+def get_torchvision_model(
+        model_name,
+    ):
+    """
+    Get vision model
+    """
+    
+
+    model_fn = getattr(tv_models, model_name)
+
+    weights_enum = tv_models.get_model_weights(model_name).DEFAULT
+    model = model_fn(weights=weights_enum)
+
+    spatial, normalize = split_transform_from_weights(weights_enum)
+
+    return model, spatial, normalize
+
+
+
+
+
 
 def get_CLIP_model(
     model_name,
@@ -81,14 +102,6 @@ def get_OPENCLIP_model(
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(OPENCLIP_PARAMS[model_name])
     return model, spatial, normalize, tokenizer
-
-
-def get_intersection(clean_map, adv_map):
-    clean_map = np.asarray(clean_map, dtype=np.float32)
-    adv_map = np.asarray(adv_map, dtype=np.float32)
-    inter = np.minimum(clean_map, adv_map).sum()
-    union = np.maximum(clean_map, adv_map).sum() + 1e-12
-    return float(inter / union)
 
 
 class ImageNetVal(ImageFolder):
