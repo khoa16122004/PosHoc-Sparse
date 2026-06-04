@@ -26,18 +26,19 @@ class VLModelWrapper:
         self.tokenizer = tokenizer
         self.device = device
     
-    def set_fodler_class(self, folder_class_list):
+    def set_fodler_class(self, folder_class_list, folder_2_class_name):
         self.folder_class_list = folder_class_list
+        self.folder_2_class_name = folder_2_class_name
     
     def extract_class_text_features(self):
         textual_class_features = []
         print("Extract class_text_features...")
         for class_name in self.folder_class_list:
-            
+            class_real_name = self.folder_2_class_name[class_name][1].replace("_", " ")
             prompts = self.class_prompts[class_name]
-            # prompts = [
-            #     f"a photo of a {class_name}",
-            # ] + prompts
+            prompts = [
+                f"a photo of a {class_real_name}.",
+            ] + prompts
             textual_class_features.append(self.text_encode(prompts).mean(dim=0))        
         
         self.class_text_features = torch.stack(textual_class_features).to(self.device)

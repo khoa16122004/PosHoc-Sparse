@@ -17,7 +17,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_torchvision_model
 from wrapper import VisionModelWrapper, VLModelWrapper
-from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH
+from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH, IMAGENET_FOLDER2_CLASSNAME, CLIP_PARAMS, OPENCLIP_PARAMS
 from torch.utils.data import DataLoader
 
 
@@ -87,7 +87,8 @@ def main(args):
     # json prompt path if vlm mode
     with open(IMAGENET_PROMPT_PATH, 'r') as f:
         class_prompts = json.load(f)    
-    
+    with open(IMAGENET_FOLDER2_CLASSNAME, 'r') as f:
+        folder_2_class_name = json.load(f)
     
     # get model_name
     if args.type == "torchvision":
@@ -109,7 +110,7 @@ def main(args):
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
     folder_class_list = dataset.classes
     if args.type in ["CLIP", "OPENCLIP"]:
-        model.set_fodler_class(folder_class_list)
+        model.set_fodler_class(folder_class_list, folder_2_class_name)
         model.extract_class_text_features()
     
     total_seen = 0

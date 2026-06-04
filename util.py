@@ -87,7 +87,6 @@ def get_CLIP_model(
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(CLIP_PARAMS[model_name])
     model.eval()
-    print(preprocess)
     return model, spatial, normalize
 
 
