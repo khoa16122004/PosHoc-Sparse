@@ -107,6 +107,10 @@ def main(args):
     # Dataset and dataloader    
     dataset = ImageNetVal(args.val_dir, transform=spatial)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
+    folder_class_list = dataset.classes
+    if args.type in ["CLIP", "OPENCLIP"]:
+        model.set_fodler_class(folder_class_list)
+        model.extract_class_text_features()
     
     total_seen = 0
     total_correct = 0

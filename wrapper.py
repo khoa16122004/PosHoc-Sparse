@@ -25,11 +25,14 @@ class VLModelWrapper:
         self.class_prompts = class_prompts
         self.tokenizer = tokenizer
         self.device = device
-        
-        # extract text_feature: NEED TO FIX
+    
+    def set_fodler_class(self, folder_class_list):
+        self.folder_class_list = folder_class_list
+    
+    def extract_class_text_features(self):
         textual_class_features = []
         print("Extract class_text_features...")
-        for class_name in self.class_prompts:
+        for class_name in self.folder_class_list:
             
             prompts = self.class_prompts[class_name]
             # prompts = [
