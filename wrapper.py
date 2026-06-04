@@ -71,7 +71,7 @@ class SIGLIPWrapper(VLModelWrapper):
         super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
 
     def vision_encode(self, x):
-        image_features = self.model.get_image_features(**x, return_dict=False)
+        image_features = self.model.get_image_features(pixel_values=x, return_dict=False)
         print(image_features)
         raise
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
