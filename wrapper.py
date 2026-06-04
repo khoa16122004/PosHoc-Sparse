@@ -70,3 +70,29 @@ class VLModelWrapper:
         return text_features.detach().cpu()
     
     
+class SIGLIPWrapper:
+    def __init__(self):
+        pass
+    
+    def predict(self, x):
+        pass
+
+    def vision_encode(self, x):
+        pass
+    
+    def text_encode(self, t):
+        pass
+    
+    
+class BEIT3Wrapper:
+    def __init__(self):
+        pass
+    
+    def predict(self, x):
+        pass
+
+    def vision_encode(self, x):
+        pass
+    
+    def text_encode(self, t):
+        pass

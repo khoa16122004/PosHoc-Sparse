@@ -12,6 +12,7 @@ from torchvision.datasets import ImageFolder
 import clip
 import open_clip
 import torchvision.models as tv_models
+from transformers import AutoModel, AutoProcessor, BitsAndBytesConfig
 
 _DATASET_NUM_CLASSES = {
     "imagenet": 1000,
@@ -101,11 +102,31 @@ def get_OPENCLIP_model(
         pretrained = "laion2b_s34b_b88k"
     elif model_name == "ViT-L_14":
         pretrained = "laion2b_s32b_b82k"
+        
     model, _, preprocess = open_clip.create_model_and_transforms(model_name_, pretrained=pretrained)
     tokenizer = open_clip.get_tokenizer(model_name_)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(OPENCLIP_PARAMS[model_name])
     return model, spatial, normalize, tokenizer
+
+
+def get_SIGLIP_model(
+    model_name,
+    ):
+    bnb_config = BitsAndBytesConfig(load_in_4bit=True)
+    model = AutoModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="auto", attn_implementation="sdpa")
+    processor = AutoProcessor.from_pretrained(model_name)
+    print(processor)
+    raise
+
+    
+    
+    pass
+
+def get_BEIT3_model(
+    model_name,
+    ):
+    pass
 
 
 class ImageNetVal(ImageFolder):
@@ -122,24 +143,8 @@ if __name__ == "__main__":
     # model = get_torchvision_model("resnet18", pretrained=True)
     
     
-    model, spatial, normalize, tokenizer = get_OPENCLIP_model("ViT-B/32")
-
-    
-    x = torch.randn(1, 3, 224, 224)
-    with open(IMAGENET_PROMPT_PATH, 'r') as f:
-        class_prompts = json.load(f)
-    
-    img = Image.open(r"/datastore/elo/quanphm/dataset/ImageNet1K/val/n01440764/ILSVRC2012_val_00023559.JPEG").convert("RGB")
-    img = spatial(img).unsqueeze(0)
+    model, spatial, normalize, tokenizer = get_SIGLIP_model(
+        model_name="google/siglip-base-patch16-224"
+    )
     
     
-    model = VLModelWrapper(
-        model, 
-        normalize,
-        class_prompts,
-        tokenizer=tokenizer,
-        device="cuda"
-        )    
-    logits = model.predict(img)
-    print(logits.shape)
-    print(logits.argmax(dim=-1))
