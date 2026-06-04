@@ -1,4 +1,4 @@
-IMAGENET_PROMPT_PATH = "description/imgnet1k_description.json"
+IMAGENET_PROMPT_PATH = "description/imgnet1k_val_annotations.json"
 IMAGENET_FOLDER2_CLASSNAME = "description/imgnet1k_label.json"
 DEFAULT_VAL_DIR = "/datastore/elo/quanphm/dataset/ImageNet1K/val"
 
