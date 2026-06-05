@@ -59,6 +59,19 @@ def split_VLMs_transform(
 
     return spatial, normalize
 
+def split_SIGLIP_transform(
+    param
+):
+    # CLIP, OPENCLIP, SIGLIP
+    spatial = T.Compose([
+        T.Resize(param['size'], interpolation=T.InterpolationMode.BILINEAR),
+        T.ToTensor()
+    ])
+
+    normalize = T.Normalize(mean=param['mean'], std=param['std'])
+
+    return spatial, normalize
+
 
 
 
@@ -117,7 +130,6 @@ def get_SIGLIP_model(
     ):
     bnb_config = BitsAndBytesConfig(load_in_4bit=True)
     model = AutoModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="auto", attn_implementation="sdpa")
-    from transformers import SiglipImageProcessor
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     spatial, normalize = split_VLMs_transform(SIGLIP_PARAMS[model_name])
     model = model.cuda()
