@@ -15,10 +15,11 @@ with open(IMAGENET_FOLDER2_CLASSNAME, 'r') as f:
     folder_2_class_name = json.load(f)
 
 explain_methods = [
-    'Grad',
-    'Grad_Input',
-    'Int_Grad',
-    # 'GradCAM'
+    # 'Grad',
+    # 'Grad_Input',
+    # 'Int_Grad',
+    # 'GradCAM',
+    'attn_grad'
 ]
 type = "vision_vit"
 
