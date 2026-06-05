@@ -2,7 +2,6 @@ import torch
 import clip
 import torch.nn.functional as F
 from torchvision import transforms as T
-from types import MethodType
 
 class BaseWrapper:
     def __init__(self, model, normalize, device="cuda"):
@@ -96,106 +95,58 @@ class VisionViTModelWrapper(VisionModelWrapper):
     
     def __init__(self, model, normalize, device='cuda'):
         super().__init__(model, normalize, device=device)
-        self.vit_discard_ratio = 0.9
-        self._attention_buffers = []
-        self._init_attention_hooks()
-        
+    
+    def predict(self, x):
+        outputs = self.model(
+            pixel_values=x,
+            output_attentions=False
+        )
+        return outputs
         
     def predict_and_map(self, x, class_id=None):
         if self.method_name == "attn_grad":
             logits, saliency = self.attention_grad(x, class_id)
-        else:
-            return super().predict_and_map(x, class_id)
-
+            
         return logits, saliency
-
-    def _init_attention_hooks(self):
-        encoder = getattr(self.model, "encoder", None)
-        layers = getattr(encoder, "layers", None)
-        if layers is None:
-            return
-
-        for layer in layers:
-            attention_module = getattr(layer, "self_attention", None)
-            if attention_module is None or hasattr(attention_module, "_posthoc_original_forward"):
-                continue
-
-            original_forward = attention_module.forward
-
-            def forward_with_weights(module, *args, _original_forward=original_forward, **kwargs):
-                kwargs.setdefault("need_weights", True)
-                kwargs.setdefault("average_attn_weights", False)
-                return _original_forward(*args, **kwargs)
-
-            attention_module._posthoc_original_forward = original_forward
-            attention_module.forward = MethodType(forward_with_weights, attention_module)
-            attention_module.register_forward_hook(self._capture_attention_weights)
-
-    def _capture_attention_weights(self, module, inputs, output):
-        if not isinstance(output, tuple) or len(output) < 2:
-            return
-
-        attention_weights = output[1]
-        if attention_weights is None:
-            return
-
-        attention_weights.retain_grad()
-        self._attention_buffers.append(attention_weights)
-
-    def _attention_grad_rollout(self, image_size):
-        if not self._attention_buffers:
-            raise RuntimeError("No ViT attention weights were captured for gradient rollout.")
-
-        attentions = list(self._attention_buffers)
-        batch_size = attentions[0].size(0)
-        num_tokens = attentions[0].size(-1)
-        result = torch.eye(num_tokens, device=attentions[0].device).unsqueeze(0).repeat(batch_size, 1, 1)
-
-        for attention in attentions:
-            grad = attention.grad
-            if grad is None:
-                raise RuntimeError("Missing gradients for ViT attention weights.")
-
-            fused_attention = (attention * grad).mean(dim=1)
-            fused_attention = fused_attention.clamp(min=0)
-
-            flat = fused_attention.view(batch_size, -1)
-            discard_count = int(flat.size(-1) * self.vit_discard_ratio)
-            if discard_count > 0:
-                _, indices = flat.topk(discard_count, dim=-1, largest=False)
-                discard_mask = torch.zeros_like(flat, dtype=torch.bool)
-                discard_mask.scatter_(1, indices, True)
-                discard_mask[:, 0] = False
-                flat = flat.masked_fill(discard_mask, 0)
-                fused_attention = flat.view_as(fused_attention)
-
-            identity = torch.eye(num_tokens, device=fused_attention.device).unsqueeze(0)
-            fused_attention = (fused_attention + identity) / 2
-            fused_attention = fused_attention / fused_attention.sum(dim=-1, keepdim=True).clamp_min(1e-6)
-            result = torch.matmul(fused_attention, result)
-
-        saliency = result[:, 0, 1:]
-        width = int(saliency.size(-1) ** 0.5)
-        saliency = saliency.view(batch_size, 1, width, width)
-        saliency = F.interpolate(saliency, size=image_size, mode="bilinear", align_corners=False).squeeze(1)
-        saliency = saliency / (saliency.mean(dim=(1, 2), keepdim=True) + 1e-8)
-        return saliency.detach()
 
     
     def attention_grad(self, x, class_id):
-        x = x.clone().detach()
-        self._attention_buffers = []
-        self.model.zero_grad()
+        outputs = self.predict(x, output_attentions=True)
+        logits = outputs.logits
+        score = logits[:, class_id].sum()
+        attentions = outputs.attentions
+        cams = []
+        
+        for attn in attentions:
+            grad = torch.autograd.grad(score, attn, retain_graph=True)[0]  # B x num_heads x num_tokens x num_tokens
+            cam = (attn * grad).clamp(min=0).mean(dim=1)  # B x num_tokens x num_tokens
+            cams.append(cam)
+            
+        rollout = torch.eye(cams[0].shape[-1], device=x.device).unsqueeze(0)
+        rollout = rollout.repeat(x.shape[0], 1, 1)  # B x num_tokens x num_tokens
+        
+        for cam in cams:
+            cam = cam + torch.eye(cam.shape[-1], device=x.device)
+            cam = cam / cam.sum(dim=-1, keepdim=True)
+            rollout = cam @ rollout
+            
+        saliency = rollout[:, 0, 1:]
+        grid = int(saliency.shape[-1] ** 0.5)
+        saliency = saliency.reshape(x.shape[0], 1, grid, grid)
+        saliency = F.interpolate(
+            saliency,
+            size=x.shape[-2:],
+            mode="bilinear",
+            align_corners=False
+        ).squeeze(1)
 
-        logits = self.predict(x)
-        if class_id is None:
-            target_scores = logits.gather(1, logits.argmax(dim=1, keepdim=True)).sum()
-        else:
-            target_scores = logits[:, class_id].sum()
-        target_scores.backward()
+        saliency /= (
+            saliency.mean(dim=(1,2), keepdim=True)
+            + 1e-8
+        )
+        
+        return logits, saliency.detach()
 
-        saliency = self._attention_grad_rollout(x.shape[-2:])
-        return logits, saliency
     
 
 
