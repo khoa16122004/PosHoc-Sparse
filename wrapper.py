@@ -42,8 +42,17 @@ class VisionModelWrapper:
         return logits, saliency.detach()
     
     def grad_input_explain(self, x, class_id):
-        logits, saliency = self.grad_explain(x, class_id)
-        return logits, saliency * x
+        x = x.clone().detach() # B x 3 x w x h
+        x.requires_grad = True
+        logits = self.predict(x)
+        scores = logits[:, class_id].sum()    
+        scores.backward()
+        gradients = x.grad
+        saliency = gradients * x
+        saliency = saliency.abs().sum(dim=1)    # B x w x h
+        saliency = saliency / (
+        saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
+        return logits, saliency.detach()
     
     def int_grad_explain(self, x, class_id, steps=50):
         pass
