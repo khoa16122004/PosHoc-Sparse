@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from constant import IMAGENET_PROMPT_PATH, CLIP_PARAMS, OPENCLIP_PARAMS, SIGLIP_PARAMS
+from constant import IMAGENET_PROMPT_PATH, CLIP_PARAMS, OPENCLIP_PARAMS, SIGLIP_PARAMS, VIT_PARAMS
 import torchvision.transforms as T
 import numpy as np
 import torch
@@ -41,6 +41,17 @@ def split_transform_from_weights(weights):
     ])
 
     normalize = T.Normalize(mean=mean, std=std)
+
+    return spatial, normalize
+
+
+def split_transform_from_ViT(param):
+    spatial = T.Compose([
+        T.Resize((param['size'], param['size']), interpolation=T.InterpolationMode.BICUBIC),
+        T.ToTensor()
+    ])
+
+    normalize = T.Normalize(mean=param['mean'], std=param['std'])
 
     return spatial, normalize
 
@@ -93,13 +104,10 @@ def get_torchvision_model(
 def get_ViT_model(
     model_name
 ):
-    model = ViTForImageClassification.from_pretrained(model_name)
-    processor = AutoProcessor.from_pretrained(model_name)
-    print(processor)
-    raise
-    model = model.cuda()
+    model = ViTForImageClassification.from_pretrained(model_name).cuda()
+    spatial, normalize = split_transform_from_ViT(VIT_PARAMS[model_name])
     model.eval()
-    return model, processor
+    return model, spatial, normalize
 
 
 def get_CLIP_model(

@@ -13,8 +13,28 @@ VISION_MODELS = [
 ]
 
 ViT_MODELS = [
-    "google/vit-base-patch16-224-in21k"
+    "google/vit-base-patch32-224-in21k",
+    "google/vit-base-patch16-224-in21k",
+    "google/vit-large-patch16-224-in21k"
 ]
+
+VIT_PARAMS = {
+    "google/vit-base-patch32-224-in21k": {
+        "size": 224,
+        "mean": [0.5, 0.5, 0.5],
+        "std": [0.5, 0.5, 0.5]
+    },
+    "google/vit-base-patch16-224-in21k": {
+        "size": 224,
+        "mean": [0.5, 0.5, 0.5],
+        "std": [0.5, 0.5, 0.5]
+    },
+    "google/vit-large-patch16-224-in21k": {
+        "size": 224,
+        "mean": [0.5, 0.5, 0.5],
+        "std": [0.5, 0.5, 0.5]
+    }    
+}
 
 
 CLIP_MODELS = [
