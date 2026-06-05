@@ -131,7 +131,7 @@ def get_SIGLIP_model(
     bnb_config = BitsAndBytesConfig(load_in_4bit=True)
     model = AutoModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="auto", attn_implementation="sdpa")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    spatial, normalize = split_VLMs_transform(SIGLIP_PARAMS[model_name])
+    spatial, normalize = split_SIGLIP_transform(SIGLIP_PARAMS[model_name])
     model = model.cuda()
     return model, spatial, normalize, tokenizer
     
