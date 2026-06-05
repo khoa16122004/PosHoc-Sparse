@@ -12,7 +12,7 @@ model.set_posthoc_xai(
 )
 
 img = Image.open(
-    "imgs/tabby.jpg"
+    "imgs/tench.jpg"
 )
 
 img = spatial(img).unsqueeze(0).cuda()
@@ -21,7 +21,7 @@ torchvision.utils.save_image(img, "input.png")
 
 imgs = img.repeat(2,1,1,1)
 
-logits, saliency = model.predict_and_map(imgs, class_id=281)
+logits, saliency = model.predict_and_map(imgs, class_id=0)
 print(saliency.shape)
 sal = saliency[0].detach().cpu().numpy()
 
