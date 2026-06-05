@@ -3,6 +3,7 @@ from util import split_transform_from_weights, split_VLMs_transform
 from torchvision.models import get_model_weights
 import clip
 
+
 class VisionModelWrapper:
     "Vison Wrapper for vision-only models, e.g., ResNet, ViT, etc."
     
@@ -71,16 +72,14 @@ class SIGLIPWrapper(VLModelWrapper):
         super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
 
     def vision_encode(self, x):
-        last_hidden_state, pooler_output =  self.model.get_image_features(pixel_values=x, return_dict=False) # Batch x N x D
-        image_features = last_hidden_state.mean(dim=1)
+        image_features = self.model.get_image_features(pixel_values=x).pooler_output
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         return image_features
     
     def text_encode(self, t):
-        inputs = self.tokenizer(t, padding=True, truncation=True, return_tensors="pt")
+        inputs = self.tokenizer(t, padding="max_length", truncation=True, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        last_hidden_state, pooler_output = self.model.get_text_features(**inputs, return_dict=False)
-        text_features = last_hidden_state.mean(dim=1)
+        text_features = self.model.get_text_features(**inputs).pooler_output
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
     
