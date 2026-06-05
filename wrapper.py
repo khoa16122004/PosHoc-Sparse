@@ -36,7 +36,7 @@ class VisionModelWrapper:
         scores = logits[:, class_id].sum()    
         scores.backward()
         gradients = x.grad
-        saliency = gradients.abs().sum(dim=1)    # B x w x h
+        saliency = gradients.sum(dim=1)    # B x w x h
         saliency = saliency / (
         saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
@@ -49,7 +49,7 @@ class VisionModelWrapper:
         scores.backward()
         gradients = x.grad
         saliency = gradients * x
-        saliency = saliency.abs().sum(dim=1)    # B x w x h
+        saliency = saliency.sum(dim=1)    # B x w x h
         saliency = saliency / (
         saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
@@ -69,8 +69,8 @@ class VisionModelWrapper:
             inp.grad.zero_()
             
         avg_grads = grads / steps
-        ig = (x - baseline) * avg_grads
-        saliency = ig.abs().sum(dim=1)    # B x w x h
+        ig = x * avg_grads
+        saliency = ig.sum(dim=1)    # B x w x h
         saliency = saliency / (
         saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
