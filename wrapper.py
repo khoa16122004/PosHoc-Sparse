@@ -73,10 +73,7 @@ class SIGLIPWrapper(VLModelWrapper):
     def vision_encode(self, x):
         last_hidden_state, pooler_output =  self.model.get_image_features(pixel_values=x, return_dict=False) # Batch x N x D
         image_features = last_hidden_state.mean(dim=1)
-        print("last_hidden_state shape: ", last_hidden_state.shape)
-        print("image_features shape: ", image_features.shape)
-        raise
-        image_features = image_features / pooler_output.norm(dim=-1, keepdim=True)
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         return image_features
     
     def text_encode(self, t):
@@ -84,9 +81,7 @@ class SIGLIPWrapper(VLModelWrapper):
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         last_hidden_state, pooler_output = self.model.get_text_features(**inputs, return_dict=False)
         text_features = last_hidden_state.mean(dim=1)
-        print("last_hidden_state shape: ", last_hidden_state.shape)
-        print("text_features shape: ", text_features.shape)
-        text_features = text_features / pooler_output.norm(dim=-1, keepdim=True)
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
     
     
