@@ -71,8 +71,8 @@ for method in explain_methods:
     model.set_posthoc_xai(method)
 
     print(f"Running {method}...")
-    logits = model.predict(imgs)
-    print(logits)
+    logits = model.predict(imgs).logits
+    print(logits.shape)
 
     logits, saliency = model.predict_and_map(imgs, class_id=0)
     sal = saliency[0].detach().cpu().numpy()

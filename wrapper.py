@@ -96,10 +96,10 @@ class VisionViTModelWrapper(VisionModelWrapper):
     def __init__(self, model, normalize, device='cuda'):
         super().__init__(model, normalize, device=device)
     
-    def predict(self, x):
+    def predict(self, x, output_attentions=False):
         outputs = self.model(
             pixel_values=x,
-            output_attentions=False
+            output_attentions=output_attentions
         )
         return outputs
         
