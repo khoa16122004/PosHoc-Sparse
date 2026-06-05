@@ -20,7 +20,7 @@ explain_methods = [
     'Int_Grad',
     # 'GradCAM'
 ]
-type = "CLIP"
+type = "OPENCLIP"
 
 # vision
 if type == "torchvision":
