@@ -12,8 +12,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_SIGLIP_model, get_torchvision_model
-from wrapper import SIGLIPWrapper, VisionModelWrapper, VLModelWrapper
+from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_SIGLIP_model, get_torchvision_model, get_ViT_model
+from wrapper import SIGLIPWrapper, VisionModelWrapper, VLModelWrapper, VisionViTModelWrapper
 from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH, IMAGENET_FOLDER2_CLASSNAME
 from torch.utils.data import DataLoader
 
@@ -34,7 +34,7 @@ def parse_args():
         "--type",
         type=str,   
         required=True,
-        choices=["torchvision", "CLIP", "OPENCLIP", "SIGLIP"],
+        choices=["torchvision", "ViT", "CLIP", "OPENCLIP", "SIGLIP"],
     )
 
     parser.add_argument(
@@ -92,6 +92,10 @@ def main(args):
         model, spatial, normalize = get_torchvision_model(args.model_name)
         model = VisionModelWrapper(model, normalize)
         
+    elif args.type == "ViT":
+        model, spatial, normalize = get_ViT_model(args.model_name)
+        model = VisionViTModelWrapper(model, normalize)
+        
     elif args.type == "CLIP":
         model, spatial, normalize = get_CLIP_model(args.model_name)
         model = VLModelWrapper(model, normalize, class_prompts)
@@ -110,7 +114,7 @@ def main(args):
     dataset = ImageNetVal(args.val_dir, transform=spatial)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
     folder_class_list = dataset.classes
-    if args.type in ["CLIP", "OPENCLIP", "SIGLIP"]:
+    if args.type in ["ViT", "CLIP", "OPENCLIP", "SIGLIP"]:
         model.set_fodler_class(folder_class_list, folder_2_class_name)
         model.extract_class_text_features()
     

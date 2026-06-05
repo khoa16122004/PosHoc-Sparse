@@ -101,6 +101,8 @@ class VisionViTModelWrapper(VisionModelWrapper):
             pixel_values=x,
             output_attentions=output_attentions
         )
+        if not output_attentions:
+            return outputs.logits
         return outputs
         
     def predict_and_map(self, x, class_id=None):

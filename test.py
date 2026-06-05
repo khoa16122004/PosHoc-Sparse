@@ -77,7 +77,7 @@ for method in explain_methods:
     logits, saliency = model.predict_and_map(imgs, class_id=0)
     sal = saliency[0].detach().cpu().numpy()
 
-    plt.imshow(sal, cmap='hot')
+    plt.imshow(sal, cmap='jet')
     plt.axis('off')
     plt.savefig(
         f"saliency_{method}.png",
