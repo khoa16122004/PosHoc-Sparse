@@ -3,7 +3,7 @@ import torch
 import torchvision
 from matplotlib import pyplot as plt
 from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_SIGLIP_model, get_torchvision_model
-from wrapper import SIGLIPWrapper, VisionModelWrapper, VLModelWrapper
+from wrapper import SIGLIPWrapper, VisionModelWrapper, VLModelWrapper, VisionViTModelWrapper
 from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH, IMAGENET_FOLDER2_CLASSNAME
 from torch.utils.data import DataLoader
 import json
@@ -16,16 +16,20 @@ with open(IMAGENET_FOLDER2_CLASSNAME, 'r') as f:
 
 explain_methods = [
     'Grad',
-    'Grad_Input',
-    'Int_Grad',
+    # 'Grad_Input',
+    # 'Int_Grad',
     # 'GradCAM'
 ]
-type = "OPENCLIP"
+type = "vision_vit"
 
 # vision
 if type == "torchvision":
     model, spatial, normalize = get_torchvision_model("resnet18")
     model = VisionModelWrapper(model, normalize)
+    
+elif type == "vision_vit":
+    model, spatial, normalize = get_torchvision_model("vit_b_16")
+    model = VisionViTModelWrapper(model, normalize)
     
 elif type == "CLIP":
     model, spatial, normalize = get_CLIP_model("ViT-B_32")

@@ -1,5 +1,7 @@
 import torch
 import clip
+import torch.nn.functional as F
+from torchvision import transforms as T
 
 class BaseWrapper:
     def __init__(self, model, normalize, device="cuda"):
@@ -78,7 +80,7 @@ class BaseWrapper:
 
 
 class VisionModelWrapper(BaseWrapper):
-    "Vison Wrapper for vision-only models, e.g., ResNet, ViT, etc."
+    "Vison Wrapper for vision-only models, e.g., ResNet, etc."
     
     def __init__(self, model, normalize, device='cuda'):
         super().__init__(model, normalize, device=device)
@@ -87,6 +89,78 @@ class VisionModelWrapper(BaseWrapper):
         x = self.normalize(x)
         logits = self.model(x)
         return logits
+    
+class VisionViTModelWrapper(VisionModelWrapper):
+    "Vison Wrapper for vision ViT, etc."
+    
+    def __init__(self, model, normalize, device='cuda'):
+        super().__init__(model, normalize, device=device)
+        
+        self.patch_tokens = None
+        def forward_hook(module, inp, out):
+            self.patch_tokens = out
+            self.patch_tokens.retain_grad()
+
+        self.model.conv_proj.register_forward_hook(
+            forward_hook
+        )
+
+    def grad_explain(self, x, class_id):
+        logits = self.predict(x)
+        score = logits[:, class_id].sum()
+        self.model.zero_grad()
+        score.backward()
+        saliency = self.patch_tokens.grad.abs().sum(dim=1)
+        saliency = F.interpolate(
+            saliency.unsqueeze(1),
+            size=x.shape[-2:],
+            mode="bicubic",
+            align_corners=False
+        ).squeeze(1)
+
+        saliency = saliency / (
+            saliency.mean(dim=(1,2), keepdim=True)
+            + 1e-8
+        )
+
+        return logits.detach(), saliency.detach()
+    
+    def grad_input_explain(self, x, class_id):
+        x = x.clone().detach() # B x 3 x w x h
+        x.requires_grad = True
+        logits = self.predict(x)
+        scores = logits[:, class_id].sum()    
+        scores.backward()
+        gradients = x.grad
+        saliency = gradients * x
+        saliency = saliency.abs().sum(dim=1)    # B x w x h
+        saliency = saliency / (
+        saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
+        return logits, saliency.detach()
+    
+    def int_grad_explain(self, x, class_id, steps=50):
+        x = x.clone().detach() # B x 3 x w x h
+        baseline = torch.zeros_like(x).to(self.device)
+        grads = torch.zeros_like(x)
+        for i in range(steps):
+            alpha = (i + 1) / steps
+            inp = baseline + alpha * (x - baseline)
+            inp = inp.detach().requires_grad_(True)
+            logits = self.predict(inp)
+            scores = logits[:, class_id].sum()  
+            scores.backward()
+            grads += inp.grad.detach()
+            inp.grad.zero_()
+            
+        avg_grads = grads / steps
+        ig = x * avg_grads
+        saliency = ig.abs().sum(dim=1)    # B x w x h
+        saliency = saliency / (
+        saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
+        return logits, saliency.detach()
+    
+    def gradcam_explain(self, x, class_id):
+        pass
     
            
           
