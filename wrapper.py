@@ -33,7 +33,7 @@ class VisionModelWrapper:
         x = x.clone().detach() # B x 3 x w x h
         x.requires_grad = True
         logits = self.predict(x)
-        scores = logits[:, class_id]
+        scores = logits[:, class_id].sum()    
         scores.backward()
         gradients = x.grad
         saliency = gradients.abs().sum(dim=1)    # B x w x h
