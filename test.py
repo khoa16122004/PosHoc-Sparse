@@ -29,7 +29,7 @@ if type == "torchvision":
     model = VisionModelWrapper(model, normalize)
     
 elif type == "vision_vit":
-    model, spatial, normalize = get_ViT_model("google/vit-base-patch32-224")
+    model, spatial, normalize = get_ViT_model("google/vit-base-patch16-224")
     model = VisionViTModelWrapper(model, normalize)
     
 elif type == "CLIP":
