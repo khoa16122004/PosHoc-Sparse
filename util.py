@@ -104,7 +104,7 @@ def get_torchvision_model(
 def get_ViT_model(
     model_name
 ):
-    model = ViTForImageClassification.from_pretrained(model_name).cuda()
+    model = ViTForImageClassification.from_pretrained(model_name, attn_implementation="eager").cuda()
     spatial, normalize = split_transform_from_ViT(VIT_PARAMS[model_name])
     model.eval()
     return model, spatial, normalize
