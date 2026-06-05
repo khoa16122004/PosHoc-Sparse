@@ -126,38 +126,94 @@ class VisionViTModelWrapper(VisionModelWrapper):
         return logits.detach(), saliency.detach()
     
     def grad_input_explain(self, x, class_id):
-        x = x.clone().detach() # B x 3 x w x h
-        x.requires_grad = True
+
         logits = self.predict(x)
-        scores = logits[:, class_id].sum()    
-        scores.backward()
-        gradients = x.grad
-        saliency = gradients * x
-        saliency = saliency.abs().sum(dim=1)    # B x w x h
+
+        score = logits[:, class_id].sum()
+
+        self.model.zero_grad()
+
+        score.backward()
+
+        saliency = (
+            self.patch_tokens.grad
+            *
+            self.patch_tokens
+        ).abs().sum(dim=1)
+
+        saliency = F.interpolate(
+            saliency.unsqueeze(1),
+            size=x.shape[-2:],
+            mode="bicubic",
+            align_corners=False
+        ).squeeze(1)
+
         saliency = saliency / (
-        saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
-        return logits, saliency.detach()
+            saliency.mean(dim=(1,2), keepdim=True)
+            + 1e-8
+        )
+
+        return logits.detach(), saliency.detach()
     
-    def int_grad_explain(self, x, class_id, steps=50):
-        x = x.clone().detach() # B x 3 x w x h
-        baseline = torch.zeros_like(x).to(self.device)
-        grads = torch.zeros_like(x)
+    def int_grad_explain(
+        self,
+        x,
+        class_id,
+        steps=50
+    ):
+
+        baseline = torch.zeros_like(x)
+
+        accumulated = None
+
         for i in range(steps):
+
             alpha = (i + 1) / steps
-            inp = baseline + alpha * (x - baseline)
-            inp = inp.detach().requires_grad_(True)
+
+            inp = (
+                baseline
+                +
+                alpha * (x - baseline)
+            )
+
             logits = self.predict(inp)
-            scores = logits[:, class_id].sum()  
-            scores.backward()
-            grads += inp.grad.detach()
-            inp.grad.zero_()
-            
-        avg_grads = grads / steps
-        ig = x * avg_grads
-        saliency = ig.abs().sum(dim=1)    # B x w x h
+
+            score = logits[:, class_id].sum()
+
+            self.model.zero_grad()
+
+            score.backward()
+
+            grad = self.patch_tokens.grad.detach()
+
+            if accumulated is None:
+                accumulated = grad
+            else:
+                accumulated += grad
+
+        avg_grad = accumulated / steps
+
+        ig = (
+            self.patch_tokens.detach()
+            *
+            avg_grad
+        )
+
+        saliency = ig.abs().sum(dim=1)
+
+        saliency = F.interpolate(
+            saliency.unsqueeze(1),
+            size=x.shape[-2:],
+            mode="bicubic",
+            align_corners=False
+        ).squeeze(1)
+
         saliency = saliency / (
-        saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
-        return logits, saliency.detach()
+            saliency.mean(dim=(1,2), keepdim=True)
+            + 1e-8
+        )
+
+        return logits.detach(), saliency.detach()
     
     def gradcam_explain(self, x, class_id):
         pass

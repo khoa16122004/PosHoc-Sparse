@@ -16,8 +16,8 @@ with open(IMAGENET_FOLDER2_CLASSNAME, 'r') as f:
 
 explain_methods = [
     'Grad',
-    # 'Grad_Input',
-    # 'Int_Grad',
+    'Grad_Input',
+    'Int_Grad',
     # 'GradCAM'
 ]
 type = "vision_vit"
