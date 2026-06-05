@@ -66,6 +66,7 @@ class VisionModelWrapper:
             scores = logits[:, class_id].sum()  
             scores.backward()
             grads += inp.grad.detach()
+            inp.grad.zero_()
             
         avg_grads = grads / steps
         ig = (x - baseline) * avg_grads
