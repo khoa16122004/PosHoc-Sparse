@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 model, spatial, normalize = get_torchvision_model('resnet18')
 model = VisionModelWrapper(model, normalize)
 model.set_posthoc_xai(
-    "Grad_Input"
+    "Int_Grad"
 )
 
 img = Image.open(

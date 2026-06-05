@@ -54,7 +54,28 @@ class VisionModelWrapper:
         saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
     
-    def int_grad_explain(self, x, class_id, steps=50):
+    def int_grad_explain(self, x, class_id, steps=10):
+        x = x.clone().detach() # B x 3 x w x h
+        baseline = torch.zeros_like(x).to(self.device)
+        grads = torch.zeros_like(x)
+        for i in range(steps):
+            alpha = (i + 1) / steps
+            inp = baseline + alpha * (x - baseline)
+            inp.requires_grad = True
+            logits = self.predict(inp)
+            scores = logits[:, class_id].sum()  
+            scores.backward()
+            grads += inp.grad.detach()
+            
+        avg_grads = grads / steps
+        ig = (x - baseline) * avg_grads
+        saliency = ig.abs().sum(dim=1)    # B x w x h
+        saliency = saliency / (
+        saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
+        return logits, saliency.detach()
+
+            
+        
         pass
     
     def gradcam_explain(self, x, class_id):
