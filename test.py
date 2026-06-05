@@ -14,7 +14,7 @@ img = Image.open(
     "imgs/tabby.jpg"
 )
 
-img = spatial(img).unsqueeze(0)
+img = spatial(img).unsqueeze(0).cuda()
 
 logits, saliency = model.predict_and_map(img, class_id=283)
 
