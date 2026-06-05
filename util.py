@@ -12,7 +12,7 @@ from torchvision.datasets import ImageFolder
 import clip
 import open_clip
 import torchvision.models as tv_models
-from transformers import AutoModel, AutoProcessor, AutoTokenizer, BitsAndBytesConfig
+from transformers import AutoConfig, AutoModel, AutoProcessor, AutoTokenizer, BitsAndBytesConfig
 
 _DATASET_NUM_CLASSES = {
     "imagenet": 1000,
@@ -116,8 +116,22 @@ def get_SIGLIP_model(
     model_name,
     ):
     bnb_config = BitsAndBytesConfig(load_in_4bit=True)
-    model = AutoModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="auto", attn_implementation="sdpa")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    config = AutoConfig.from_pretrained(model_name)
+    text_config = getattr(config, "text_config", None)
+    text_vocab_size = getattr(text_config, "vocab_size", None)
+    if text_config is not None and text_vocab_size is not None:
+        bos_token_id = getattr(text_config, "bos_token_id", None)
+        if bos_token_id is not None and not 0 <= bos_token_id < text_vocab_size:
+            text_config.bos_token_id = None
+
+    model = AutoModel.from_pretrained(
+        model_name,
+        config=config,
+        quantization_config=bnb_config,
+        device_map="auto",
+        attn_implementation="sdpa",
+    )
+    tokenizer = AutoTokenizer.from_pretrained(model_name, bos_token=None)
     spatial, normalize = split_VLMs_transform(SIGLIP_PARAMS[model_name])
     model = model.cuda()
     return model, spatial, normalize, tokenizer
