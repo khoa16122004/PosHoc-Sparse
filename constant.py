@@ -93,13 +93,11 @@ SIGLIP_MODELS = [
 SIGLIP_PARAMS = {
     "google/siglip-base-patch16-224": {
         "size": 224,
-        "crop_size": 224,
         "mean": [0.5, 0.5, 0.5],
         "std": [0.5, 0.5, 0.5]
     },
     "google/siglip-large-patch16-256": {
         "size": 256,
-        "crop_size": 256,
         "mean": [0.5, 0.5, 0.5],
         "std": [0.5, 0.5, 0.5] 
     }
