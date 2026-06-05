@@ -64,7 +64,7 @@ def split_SIGLIP_transform(
 ):
     # CLIP, OPENCLIP, SIGLIP
     spatial = T.Compose([
-        T.Resize(param['size'], interpolation=T.InterpolationMode.BILINEAR),
+        T.Resize((param['size'], param['size']), interpolation=T.InterpolationMode.BILINEAR),
         T.ToTensor()
     ])
 
