@@ -49,7 +49,8 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 # CHẠY CODE
 # =========================================================
 
-python util.py
+# python util.py
+python test.py
 
 
 

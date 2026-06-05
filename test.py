@@ -1,14 +1,21 @@
-from util import ImageNetVal
-import json
-dataset = ImageNetVal("E:\\ImageNet1K\\imagenet\\ImageNet1K\\val", transform=None)
+from util import get_torchvision_model
+from wrapper import VisionModelWrapper
+from PIL import Image
+import torch
+import torchvision
 
-image_net_classes = dataset.classes
-with open("D:\\PosHoc-Sparse\\description\\imgnet1k_description.json", 'r') as f:
-    class_prompts = list(json.load(f).keys())
+model, spatial, normalize = get_torchvision_model('resnet18')
+model = VisionModelWrapper(model, normalize)
 
-union = set(image_net_classes) & set(class_prompts)
-print("Union: ", len(union))
+img = Image.open(
+    "imgs/tabby.jpg"
+)
 
-for cls_1, cls_2 in zip(image_net_classes, class_prompts):
-    if cls_1 != cls_2:
-        print(cls_2)
+img = spatial(img).unsqueeze(0)
+
+logits, saliency = model.predict_and_map(img, class_id=283)
+
+print(torch.argmax(logits, dim=1))
+# save saliency, torchvision.utils.save_image(saliency, "saliency.png")
+# 1 x 1 x w x h
+torchvision.utils.save_image(saliency, "saliency.png")

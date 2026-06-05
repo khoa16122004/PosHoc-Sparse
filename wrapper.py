@@ -1,8 +1,4 @@
 import torch
-from util import split_transform_from_weights, split_VLMs_transform
-from torchvision.models import get_model_weights
-import clip
-
 
 class VisionModelWrapper:
     "Vison Wrapper for vision-only models, e.g., ResNet, ViT, etc."
@@ -12,11 +8,53 @@ class VisionModelWrapper:
         self.model = model.to(device)
         self.normalize = normalize
         self.device = device
+        
+    def set_posthoc_xai(self, method_name):
+        pass
 
     def predict(self, x):
         x = self.normalize(x)
         logits = self.model(x)
         return logits
+    
+    def predict_and_map(self, x, class_id=None):
+        if self.method_name == "Grad":
+            logits, saliency = self.grad_explain(x, class_id)
+        elif self.method_name == "Grad_Input":
+            logits, saliency = self.grad_input_explain(x, class_id)
+        elif self.method_name == "Int_Grad":
+            logits, saliency = self.int_grad_explain(x, class_id)
+        elif self.method_name == "GradCAM":
+            logits, saliency = self.gradcam_explain(x, class_id)
+        
+        return logits, saliency
+        
+    def grad_explain(self, x, class_id):
+        x = x.clone().detach() # B x 3 x w x h
+        x.requires_grad = True
+        logits = self.predict(x)
+        scores = logits[:, class_id]
+        scores.backward()
+        gradients = x.grad
+        saliency = gradients.abs().sum(dim=1)    # B x w x h
+        saliency = saliency / (
+        saliency.mean(dim=(1,2), keepdim=True) + 1e-8)
+        return logits, saliency.detach()
+    
+    def grad_input_explain(self, x, class_id):
+        logits, saliency = self.grad_explain(x, class_id)
+        return logits, saliency * x
+    
+    def int_grad_explain(self, x, class_id, steps=50):
+        pass
+    
+    def gradcam_explain(self, x, class_id):
+        pass
+        
+           
+          
+        
+        
     
     
 class VLModelWrapper:
@@ -82,5 +120,17 @@ class SIGLIPWrapper(VLModelWrapper):
         text_features = self.model.get_text_features(**inputs).pooler_output # pooler or last hidden state
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
+    
+
+class GradExplain:
+    def __init__(self):
+        pass
+    
+    def method_explain(self, x, class_id):
+        x = x.clone().detach()
+        x.requires_grad = True
+        
+        
+        pass
     
     
