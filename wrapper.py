@@ -10,7 +10,7 @@ class VisionModelWrapper:
         self.device = device
         
     def set_posthoc_xai(self, method_name):
-        pass
+        self.method_name = method_name
 
     def predict(self, x):
         x = self.normalize(x)

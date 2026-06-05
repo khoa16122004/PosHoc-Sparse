@@ -6,6 +6,9 @@ import torchvision
 
 model, spatial, normalize = get_torchvision_model('resnet18')
 model = VisionModelWrapper(model, normalize)
+model.set_posthoc_xai(
+    "Grad"
+)
 
 img = Image.open(
     "imgs/tabby.jpg"
