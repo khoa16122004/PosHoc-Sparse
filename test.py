@@ -17,10 +17,11 @@ model = VisionModelWrapper(model, normalize)
 img = Image.open(
     "imgs/tench.jpg"
 )
+
+img = spatial(img).unsqueeze(0).cuda()
+imgs = img.repeat(2,1,1,1)
 torchvision.utils.save_image(img, "input.png")
 
-imgs = img.repeat(2,1,1,1)
-img = spatial(img).unsqueeze(0).cuda()
 for method in explain_methods:
     model.set_posthoc_xai(method)
 
