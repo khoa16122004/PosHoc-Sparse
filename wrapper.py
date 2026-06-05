@@ -1,21 +1,18 @@
 import torch
+import clip
 
-class VisionModelWrapper:
-    "Vison Wrapper for vision-only models, e.g., ResNet, ViT, etc."
-    
-    
-    def __init__(self, model, normalize, device='cuda'):
+class BaseWrapper:
+    def __init__(self, model, normalize, device="cuda"):
         self.model = model.to(device)
         self.normalize = normalize
         self.device = device
-        
+
+    def predict(self, x):
+        pass
+    
     def set_posthoc_xai(self, method_name):
         self.method_name = method_name
 
-    def predict(self, x):
-        x = self.normalize(x)
-        logits = self.model(x)
-        return logits
     
     def predict_and_map(self, x, class_id=None):
         if self.method_name == "Grad":
@@ -36,7 +33,7 @@ class VisionModelWrapper:
         scores = logits[:, class_id].sum()    
         scores.backward()
         gradients = x.grad
-        saliency = gradients.sum(dim=1).abs()   # B x w x h
+        saliency = gradients.abs().sum(dim=1)   # B x w x h
         saliency = saliency / (
         saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
@@ -49,7 +46,7 @@ class VisionModelWrapper:
         scores.backward()
         gradients = x.grad
         saliency = gradients * x
-        saliency = saliency.sum(dim=1).abs()    # B x w x h
+        saliency = saliency.abs().sum(dim=1)    # B x w x h
         saliency = saliency / (
         saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
@@ -61,7 +58,7 @@ class VisionModelWrapper:
         for i in range(steps):
             alpha = (i + 1) / steps
             inp = baseline + alpha * (x - baseline)
-            inp.requires_grad = True
+            inp = inp.detach().requires_grad_(True)
             logits = self.predict(inp)
             scores = logits[:, class_id].sum()  
             scores.backward()
@@ -70,31 +67,38 @@ class VisionModelWrapper:
             
         avg_grads = grads / steps
         ig = x * avg_grads
-        saliency = ig.sum(dim=1).abs()    # B x w x h
+        saliency = ig.abs().sum(dim=1)    # B x w x h
         saliency = saliency / (
         saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
-
-            
-        
-        pass
     
     def gradcam_explain(self, x, class_id):
         pass
         
+
+
+class VisionModelWrapper(BaseWrapper):
+    "Vison Wrapper for vision-only models, e.g., ResNet, ViT, etc."
+    
+    def __init__(self, model, normalize, device='cuda'):
+        super().__init__(model, normalize, device=device)
+        
+    def predict(self, x):
+        x = self.normalize(x)
+        logits = self.model(x)
+        return logits
+    
            
           
         
         
     
     
-class VLModelWrapper:
+class VLModelWrapper(BaseWrapper):
     def __init__(self, model, normalize, class_prompts, tokenizer=None, device='cuda'):
-        self.model = model.to(device)
-        self.normalize = normalize
+        super().__init__(model, normalize, device=device)
         self.class_prompts = class_prompts
         self.tokenizer = tokenizer
-        self.device = device
     
     def set_fodler_class(self, folder_class_list, folder_2_class_name):
         self.folder_class_list = folder_class_list
@@ -151,17 +155,5 @@ class SIGLIPWrapper(VLModelWrapper):
         text_features = self.model.get_text_features(**inputs).pooler_output # pooler or last hidden state
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
-    
 
-class GradExplain:
-    def __init__(self):
-        pass
-    
-    def method_explain(self, x, class_id):
-        x = x.clone().detach()
-        x.requires_grad = True
-        
-        
-        pass
-    
     
