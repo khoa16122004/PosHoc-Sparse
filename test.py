@@ -5,30 +5,34 @@ import torch
 import torchvision
 from matplotlib import pyplot as plt
 
+explain_methods = [
+    'Grad',
+    'Grad_Input',
+    'Int_Grad',
+    # 'GradCAM'
+]
+
 model, spatial, normalize = get_torchvision_model('densenet121')
 model = VisionModelWrapper(model, normalize)
-model.set_posthoc_xai(
-    "Int_Grad"
-)
-
 img = Image.open(
     "imgs/tench.jpg"
 )
-
-img = spatial(img).unsqueeze(0).cuda()
-# save image
 torchvision.utils.save_image(img, "input.png")
 
 imgs = img.repeat(2,1,1,1)
+img = spatial(img).unsqueeze(0).cuda()
+for method in explain_methods:
+    model.set_posthoc_xai(method)
 
-logits, saliency = model.predict_and_map(imgs, class_id=0)
-print(saliency.shape)
-sal = saliency[0].detach().cpu().numpy()
+    print(f"Running {method}...")
 
-plt.imshow(sal, cmap='hot')
-plt.axis('off')
-plt.savefig(
-    "saliency.png",
-    bbox_inches='tight',
-    pad_inches=0
-)
+    logits, saliency = model.predict_and_map(imgs, class_id=0)
+    sal = saliency[0].detach().cpu().numpy()
+
+    plt.imshow(sal, cmap='hot')
+    plt.axis('off')
+    plt.savefig(
+        f"saliency_{method}.png",
+        bbox_inches='tight',
+        pad_inches=0
+    )
