@@ -120,9 +120,10 @@ def get_SIGLIP_model(
     text_config = getattr(config, "text_config", None)
     text_vocab_size = getattr(text_config, "vocab_size", None)
     if text_config is not None and text_vocab_size is not None:
-        bos_token_id = getattr(text_config, "bos_token_id", None)
-        if bos_token_id is not None and not 0 <= bos_token_id < text_vocab_size:
-            text_config.bos_token_id = None
+        for token_attr in ("bos_token_id", "eos_token_id", "pad_token_id"):
+            token_id = getattr(text_config, token_attr, None)
+            if token_id is not None and not 0 <= token_id < text_vocab_size:
+                setattr(text_config, token_attr, None)
 
     model = AutoModel.from_pretrained(
         model_name,
