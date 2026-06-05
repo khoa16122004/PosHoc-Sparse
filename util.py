@@ -128,8 +128,7 @@ def get_OPENCLIP_model(
 def get_SIGLIP_model(
     model_name,
     ):
-    bnb_config = BitsAndBytesConfig(load_in_4bit=True)
-    model = AutoModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="auto", attn_implementation="sdpa")
+    model = AutoModel.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     spatial, normalize = split_SIGLIP_transform(SIGLIP_PARAMS[model_name])
     model = model.cuda()
