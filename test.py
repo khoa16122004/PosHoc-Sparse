@@ -47,7 +47,7 @@ elif type == "SIGLIP":
 
 # Dataset and dataloader    
 dataset = ImageNetVal(DEFAULT_VAL_DIR, transform=spatial)
-dataloader = DataLoader(dataset, batch_size=32, shuffle=False, num_workers=args.num_workers)
+dataloader = DataLoader(dataset, batch_size=32, shuffle=False, num_workers=4)
 folder_class_list = dataset.classes
 if type in ["CLIP", "OPENCLIP", "SIGLIP"]:
     model.set_fodler_class(folder_class_list, folder_2_class_name)
