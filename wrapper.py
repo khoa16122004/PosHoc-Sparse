@@ -38,7 +38,7 @@ class VisionModelWrapper:
         gradients = x.grad
         saliency = gradients.abs().sum(dim=1)    # B x w x h
         saliency = saliency / (
-        saliency.mean(dim=(1,2), keepdim=True) + 1e-8)
+        saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
     
     def grad_input_explain(self, x, class_id):

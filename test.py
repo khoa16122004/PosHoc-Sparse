@@ -20,7 +20,7 @@ imgs = img.repeat(2,1,1,1)
 
 logits, saliency = model.predict_and_map(imgs, class_id=281)
 print(saliency.shape)
-sal = saliency[0,0].detach().cpu().numpy()
+sal = saliency[0].detach().cpu().numpy()
 plt.axis('off')
 plt.savefig(
     "saliency.png",
