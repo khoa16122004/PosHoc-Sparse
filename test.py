@@ -28,7 +28,7 @@ if type == "torchvision":
     model = VisionModelWrapper(model, normalize)
     
 elif type == "vision_vit":
-    model, spatial, normalize = get_torchvision_model("vit_b_16")
+    model, spatial, normalize = get_torchvision_model("vit_l_16")
     model = VisionViTModelWrapper(model, normalize)
     
 elif type == "CLIP":
