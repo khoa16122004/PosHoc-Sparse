@@ -75,29 +75,23 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 #     --output-dir evaluate_results \
 #     --type torchvision
 
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name vit_b_32 \
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type torchvision
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name google/vit-base-patch16-224 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type ViT
 
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name vit_b_16 \
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type torchvision
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name google/vit-large-patch16-224 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type ViT
 
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name vit_l_16\
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type torchvision
+
 
 
 # python script/evaluate.py \
@@ -143,26 +137,7 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 #     --num-workers 4 \
 #     --output-dir evaluate_results \
 #     --type OPENCLIP
-
-
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name  google/siglip-base-patch16-224 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type SIGLIP
-
-
-# s
-
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name  google/siglip-large-patch16-256 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type SIGLIP
+/
 
 
 
