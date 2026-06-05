@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 model, spatial, normalize = get_torchvision_model('resnet18')
 model = VisionModelWrapper(model, normalize)
 model.set_posthoc_xai(
-    "Grad"
+    "Grad_Input"
 )
 
 img = Image.open(
@@ -16,12 +16,15 @@ img = Image.open(
 )
 
 img = spatial(img).unsqueeze(0).cuda()
+# save image
+torchvision.utils.save_image(img, "input.png")
+
 imgs = img.repeat(2,1,1,1)
 
 logits, saliency = model.predict_and_map(imgs, class_id=281)
 print(saliency.shape)
 sal = saliency[0].detach().cpu().numpy()
-print(sal.min(), sal.max())
+
 plt.imshow(sal, cmap='hot')
 plt.axis('off')
 plt.savefig(
