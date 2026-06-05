@@ -79,22 +79,8 @@ class SIGLIPWrapper(VLModelWrapper):
     def text_encode(self, t):
         inputs = self.tokenizer(t, padding="max_length", truncation=True, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        text_features = self.model.get_text_features(**inputs).pooler_output
+        text_features = self.model.get_text_features(**inputs).pooler_output # pooler or last hidden state
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
     
     
-class BEIT3Wrapper:
-    def __init__(self):
-        pass
-    
-    def predict(self, x):
-        pass
-
-    def vision_encode(self, x):
-        pass
-    
-    def text_encode(self, t):
-        pass
-    
-from transformers import SiglipForImageClassification
