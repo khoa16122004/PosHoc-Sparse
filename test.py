@@ -2,7 +2,7 @@ from PIL import Image
 import torch
 import torchvision
 from matplotlib import pyplot as plt
-from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_SIGLIP_model, get_torchvision_model
+from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_SIGLIP_model, get_torchvision_model, get_ViT_model
 from wrapper import SIGLIPWrapper, VisionModelWrapper, VLModelWrapper, VisionViTModelWrapper
 from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH, IMAGENET_FOLDER2_CLASSNAME
 from torch.utils.data import DataLoader
@@ -29,8 +29,8 @@ if type == "torchvision":
     model = VisionModelWrapper(model, normalize)
     
 elif type == "vision_vit":
-    model, spatial, normalize = get_torchvision_model("vit_l_16")
-    model = VisionViTModelWrapper(model, normalize)
+    model, processor = get_ViT_model("google/vit-base-patch16-224-in21k")
+    model = VisionViTModelWrapper(model, processor)
     
 elif type == "CLIP":
     model, spatial, normalize = get_CLIP_model("ViT-B_32")

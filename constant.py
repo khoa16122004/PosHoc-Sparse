@@ -12,6 +12,10 @@ VISION_MODELS = [
     'vit_l_16',    
 ]
 
+ViT_MODELS = [
+    "google/vit-base-patch16-224-in21k"
+]
+
 
 CLIP_MODELS = [
     'ViT-B_32',
