@@ -12,8 +12,10 @@ explain_methods = [
     # 'GradCAM'
 ]
 
-model, spatial, normalize = get_torchvision_model('densenet121')
+# vision
+model, spatial, normalize = get_torchvision_model('ViT_B_16')
 model = VisionModelWrapper(model, normalize)
+
 img = Image.open(
     "imgs/tench.jpg"
 )
