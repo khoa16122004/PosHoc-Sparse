@@ -71,21 +71,22 @@ class SIGLIPWrapper(VLModelWrapper):
         super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
 
     def vision_encode(self, x):
-        last_hidden_state, pooler_output =  self.model.get_image_features(pixel_values=x, return_dict=False)
+        last_hidden_state, pooler_output =  self.model.get_image_features(pixel_values=x, return_dict=False) # Batch x N x D
+        image_features = last_hidden_state.mean(dim=1)
         print("last_hidden_state shape: ", last_hidden_state.shape)
-        print("pooler_output shape: ", pooler_output.shape)
+        print("image_features shape: ", image_features.shape)
         raise
-        image_features = pooler_output / pooler_output.norm(dim=-1, keepdim=True)
+        image_features = image_features / pooler_output.norm(dim=-1, keepdim=True)
         return image_features
     
     def text_encode(self, t):
         inputs = self.tokenizer(t, padding=True, truncation=True, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
         last_hidden_state, pooler_output = self.model.get_text_features(**inputs, return_dict=False)
+        text_features = last_hidden_state.mean(dim=1)
         print("last_hidden_state shape: ", last_hidden_state.shape)
-        print("pooler_output shape: ", pooler_output.shape)
-        raise
-        text_features = pooler_output / pooler_output.norm(dim=-1, keepdim=True)
+        print("text_features shape: ", text_features.shape)
+        text_features = text_features / pooler_output.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
     
     
@@ -101,3 +102,5 @@ class BEIT3Wrapper:
     
     def text_encode(self, t):
         pass
+    
+from transformers import SiglipForImageClassification
