@@ -71,15 +71,21 @@ class SIGLIPWrapper(VLModelWrapper):
         super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
 
     def vision_encode(self, x):
-        image_features = self.model.get_image_features(pixel_values=x, return_dict=False)[1]
-        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+        last_hidden_state, pooler_output =  self.model.get_image_features(pixel_values=x, return_dict=False)
+        print("last_hidden_state shape: ", last_hidden_state.shape)
+        print("pooler_output shape: ", pooler_output.shape)
+        raise
+        image_features = pooler_output / pooler_output.norm(dim=-1, keepdim=True)
         return image_features
     
     def text_encode(self, t):
         inputs = self.tokenizer(t, padding=True, truncation=True, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        text_features = self.model.get_text_features(**inputs, return_dict=False)[1]
-        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+        last_hidden_state, pooler_output = self.model.get_text_features(**inputs, return_dict=False)
+        print("last_hidden_state shape: ", last_hidden_state.shape)
+        print("pooler_output shape: ", pooler_output.shape)
+        raise
+        text_features = pooler_output / pooler_output.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
     
     
