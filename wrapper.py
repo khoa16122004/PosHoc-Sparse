@@ -54,7 +54,7 @@ class VisionModelWrapper:
         saliency.mean(dim=(1,2), keepdim=True) + 1e-8) # B x w x h
         return logits, saliency.detach()
     
-    def int_grad_explain(self, x, class_id, steps=10):
+    def int_grad_explain(self, x, class_id, steps=50):
         x = x.clone().detach() # B x 3 x w x h
         baseline = torch.zeros_like(x).to(self.device)
         grads = torch.zeros_like(x)
