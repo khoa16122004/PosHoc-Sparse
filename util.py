@@ -106,6 +106,8 @@ def get_OPENCLIP_model(
         pretrained = "laion2b_s32b_b82k"
         
     model, _, preprocess = open_clip.create_model_and_transforms(model_name_, pretrained=pretrained)
+    print(preprocess)
+    raise
     tokenizer = open_clip.get_tokenizer(model_name_)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(OPENCLIP_PARAMS[model_name])
