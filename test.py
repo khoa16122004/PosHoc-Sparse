@@ -16,9 +16,9 @@ img = Image.open(
 
 img = spatial(img).unsqueeze(0).cuda()
 
-logits, saliency = model.predict_and_map(img, class_id=283)
+logits, saliency = model.predict_and_map(img, class_id=281)
 
 print(torch.argmax(logits, dim=1))
 # save saliency, torchvision.utils.save_image(saliency, "saliency.png")
 # 1 x 1 x w x h
-torchvision.utils.save_image(saliency, "saliency.png")
+torchvision.utils.save_image(saliency, "saliency.png", colormap='hot')
