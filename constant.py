@@ -8,6 +8,8 @@ VISION_MODELS = [
     'vgg16',
     'densenet121',
     'vit_b_32',    
+    'vit_b_16',    
+    'vit_l_16',    
 ]
 
 

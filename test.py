@@ -13,7 +13,7 @@ explain_methods = [
 ]
 
 # vision
-model, spatial, normalize = get_torchvision_model('ViT_B_16')
+model, spatial, normalize = get_torchvision_model('vit_b_32')
 model = VisionModelWrapper(model, normalize)
 
 img = Image.open(
