@@ -106,8 +106,6 @@ def get_OPENCLIP_model(
         pretrained = "laion2b_s32b_b82k"
         
     model, _, preprocess = open_clip.create_model_and_transforms(model_name_, pretrained=pretrained)
-    print(preprocess)
-    raise
     tokenizer = open_clip.get_tokenizer(model_name_)
     model = model.cuda()
     spatial, normalize = split_VLMs_transform(OPENCLIP_PARAMS[model_name])
@@ -119,6 +117,13 @@ def get_SIGLIP_model(
     ):
     bnb_config = BitsAndBytesConfig(load_in_4bit=True)
     model = AutoModel.from_pretrained(model_name, quantization_config=bnb_config, device_map="auto", attn_implementation="sdpa")
+    from transformers import SiglipImageProcessor
+
+    image_processor = SiglipImageProcessor.from_pretrained(
+        model_name
+    )
+    print(image_processor)
+    raise
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     spatial, normalize = split_VLMs_transform(SIGLIP_PARAMS[model_name])
     model = model.cuda()
