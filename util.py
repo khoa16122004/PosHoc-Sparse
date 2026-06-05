@@ -12,7 +12,7 @@ from torchvision.datasets import ImageFolder
 import clip
 import open_clip
 import torchvision.models as tv_models
-from transformers import AutoModel, AutoProcessor, AutoTokenizer, BitsAndBytesConfig
+from transformers import AutoModel, AutoProcessor, AutoTokenizer, BitsAndBytesConfig, SiglipModel
 
 _DATASET_NUM_CLASSES = {
     "imagenet": 1000,
@@ -128,7 +128,7 @@ def get_OPENCLIP_model(
 def get_SIGLIP_model(
     model_name,
     ):
-    model = AutoModel.from_pretrained(model_name)
+    model = SiglipModel.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     spatial, normalize = split_SIGLIP_transform(SIGLIP_PARAMS[model_name])
     model = model.cuda()
