@@ -262,6 +262,22 @@ class SIGLIPWrapper(VLModelWrapper):
     def __init__(self, model, normalize, class_prompts, tokenizer=None, device='cuda'):
         super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
     
+    
+    def predict(self, x, output_attentions=False):
+        x = self.normalize(x)
+        vision_outputs = self.vision_encode(x, output_attentions=output_attentions)
+        vision_features = vision_outputs.pooler_output
+        vision_features = vision_features / vision_features.norm(dim=-1, keepdim=True)
+        logits = vision_features @ self.class_text_features.T
+        
+        if not output_attentions:
+            return logits
+
+        return SimpleNamespace(
+            logits=logits,
+            attentions=vision_outputs.attentions,
+        )
+    
     def text_encode(self, t):
         inputs = self.tokenizer(t, padding="max_length", truncation=True, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
