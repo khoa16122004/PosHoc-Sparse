@@ -103,38 +103,38 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 #     --type CLIP
 
 
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name  openai/clip-vit-base-patch16 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type CLIP
-
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name  openai/clip-vit-large-patch14 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type CLIP
-
-
 # python script/evaluate.py \
 #     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  google/siglip-base-patch16-224 \
+#     --model-name  openai/clip-vit-base-patch16 \
 #     --batch-size 512 \
 #     --num-workers 4 \
 #     --output-dir evaluate_results \
-#     --type SIGLIP
+#     --type CLIP
 
 # python script/evaluate.py \
 #     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  google/siglip-large-patch16-256 \
+#     --model-name  openai/clip-vit-large-patch14 \
 #     --batch-size 512 \
 #     --num-workers 4 \
 #     --output-dir evaluate_results \
-#     --type SIGLIP
+#     --type CLIP
+
+
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name  google/siglip-base-patch16-224 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type SIGLIP
+
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name  google/siglip-large-patch16-256 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type SIGLIP
 
 
 

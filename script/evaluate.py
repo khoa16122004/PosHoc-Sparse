@@ -13,7 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_SIGLIP_model, get_torchvision_model, get_ViT_model
-from wrapper import VisionModelWrapper, VLModelWrapper, VisionViTModelWrapper
+from wrapper import VisionModelWrapper, VLModelWrapper, VisionViTModelWrapper, SIGLIPWrapper
 from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH, IMAGENET_FOLDER2_CLASSNAME
 from torch.utils.data import DataLoader
 
@@ -107,7 +107,7 @@ def main(args):
     
     elif args.type == "SIGLIP":
         model, spatial, normalize, tokenizer = get_SIGLIP_model(args.model_name)
-        model = VLModelWrapper(model, normalize, class_prompts, tokenizer)
+        model = SIGLIPWrapper(model, normalize, class_prompts, tokenizer)
     
     
     # Dataset and dataloader    
