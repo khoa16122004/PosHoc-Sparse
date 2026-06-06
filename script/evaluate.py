@@ -170,7 +170,7 @@ def main(args):
         )
 
     output_dir = Path(output_dir)
-    if args.type in ["ViT", "SIGLIP"]:
+    if args.type in ["ViT", "CLIP", "SIGLIP"]:
         resolve_name = args.model_name.replace("/", "_")
         samples_output_path = output_dir / f"sample_attacks_{resolve_name}.json"
         performance_output_path = output_dir / f"val_performance_{resolve_name}.json"
