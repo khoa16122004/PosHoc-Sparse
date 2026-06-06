@@ -258,15 +258,15 @@ class VLModelWrapper(VisionViTModelWrapper):
         
     
     
-# class SIGLIPWrapper(VLModelWrapper):
-#     def __init__(self, model, normalize, class_prompts, tokenizer=None, device='cuda'):
-#         super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
+class SIGLIPWrapper(VLModelWrapper):
+    def __init__(self, model, normalize, class_prompts, tokenizer=None, device='cuda'):
+        super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
     
-#     def text_encode(self, t):
-#         inputs = self.tokenizer(t, padding="max_length", truncation=True, return_tensors="pt")
-#         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-#         text_features = self.model.get_text_features(**inputs).pooler_output # pooler or last hidden state
-#         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
-#         return text_features.detach().cpu()
+    def text_encode(self, t):
+        inputs = self.tokenizer(t, padding="max_length", truncation=True, return_tensors="pt")
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        text_features = self.model.get_text_features(**inputs).pooler_output # pooler or last hidden state
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+        return text_features.detach().cpu()
 
     
