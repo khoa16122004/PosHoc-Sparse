@@ -34,8 +34,8 @@ elif type == "vision_vit":
     model = VisionViTModelWrapper(model, normalize)
     
 elif type == "CLIP":
-    model, spatial, normalize = get_CLIP_model("openai/clip-vit-base-patch32")
-    model = VLModelWrapper(model, normalize, class_prompts)
+    model, spatial, normalize, tokenizer = get_CLIP_model("openai/clip-vit-base-patch32")
+    model = VLModelWrapper(model, normalize, class_prompts, tokenizer)
 
     
 elif type == "OPENCLIP":
