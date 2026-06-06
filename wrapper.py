@@ -218,29 +218,30 @@ class VLModelWrapper(VisionViTModelWrapper):
         
     def predict(self, x, output_attentions=False):
         x = self.normalize(x)
-        if not output_attentions:
-            vision_features = self.vision_encode(x).pooler_output
-            vision_features = vision_features / vision_features.norm(dim=-1, keepdim=True)
-            logits = vision_features @ self.class_text_features.T
-            return logits
-        
-        vision_outputs = self.vision_encode(x, output_attentions=True)
+        vision_outputs = self.vision_encode(x, output_attentions=output_attentions)
         pooled = vision_outputs.pooler_output
         vision_features = self.model.visual_projection(pooled)
         vision_features = vision_features / vision_features.norm(dim=-1, keepdim=True)
         logits = vision_features @ self.class_text_features.T
         
+        if not output_attentions:
+            return logits
+        
         return {
             'logits': logits,
             'attentions': vision_outputs.attentions,
-            'hidden_states': vision_outputs.hidden_states,
         }
         
     
     def vision_encode(self, x, output_attentions=False):
-        vision_features = self.model.get_image_features(pixel_values=x, output_attentions=output_attentions)
-        vision_features = vision_features / vision_features.norm(dim=-1, keepdim=True)
-        return vision_features
+        return self.model.vision_model(
+            pixel_values=x,
+            output_attentions=output_attentions,
+            output_hidden_states=output_attentions,
+            return_dict=True
+        )
+        
+
     
     
     def text_encode(self, texts):
