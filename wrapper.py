@@ -108,6 +108,8 @@ class VisionViTModelWrapper(VisionModelWrapper):
     def predict_and_map(self, x, class_id=None):
         if self.method_name == "attn_grad":
             logits, saliency = self.attention_grad(x, class_id)
+        elif self.method_name == "grad_cam":
+            logits, saliency = self.grad_cam(x, class_id)
             
         return logits, saliency
 
@@ -142,6 +144,38 @@ class VisionViTModelWrapper(VisionModelWrapper):
             align_corners=False
         ).squeeze(1)
 
+        saliency /= (
+            saliency.mean(dim=(1,2), keepdim=True)
+            + 1e-8
+        )
+        
+        return logits, saliency.detach()
+    
+    def grad_cam(self, x, class_id):
+        outputs = self.predict(x, output_attentions=True)
+        logits = outputs.logits
+        score = logits[:, class_id].sum()
+        
+        # last attention
+        attn = outputs.attentions[-1]  # B x num_heads x num_tokens x num_tokens
+        grad = torch.autograd.grad(score, attn, retain_graph=True)[0]  # B x num_heads x num_tokens x num_tokens
+        
+        # lấy CLS
+        attn = attn[:, :, 0, 1:]  # B x num_heads x num_patches
+        grad = grad[:, :, 0, 1:]  # B x num_heads x num_patches
+        
+        weights = grad.mean(dim=-1, keepdim=True)  # B x num_heads x 1
+        cam = (attn * weights).sum(dim=1)  # B x num_patches
+        cam = F.relu(cam)
+        grid = int(cam.shape[-1] ** 0.5)
+        saliency = cam.reshape(x.shape[0], 1, grid, grid)
+        saliency = F.interpolate(
+            saliency,
+            size=x.shape[-2:],
+            mode="bilinear",
+            align_corners=False
+        ).squeeze(1)
+        
         saliency /= (
             saliency.mean(dim=(1,2), keepdim=True)
             + 1e-8
