@@ -2,6 +2,7 @@ import torch
 import clip
 import torch.nn.functional as F
 from torchvision import transforms as T
+from types import SimpleNamespace
 
 class BaseWrapper:
     def __init__(self, model, normalize, device="cuda"):
@@ -226,11 +227,11 @@ class VLModelWrapper(VisionViTModelWrapper):
         
         if not output_attentions:
             return logits
-        
-        return {
-            'logits': logits,
-            'attentions': vision_outputs.attentions,
-        }
+
+        return SimpleNamespace(
+            logits=logits,
+            attentions=vision_outputs.attentions,
+        )
         
     
     def vision_encode(self, x, output_attentions=False):
@@ -244,15 +245,10 @@ class VLModelWrapper(VisionViTModelWrapper):
 
     
     
-    def text_encode(self, texts):
-        tokens = self.tokenizer(
-            texts,
-            padding=True,
-            truncation=True,
-            return_tensors="pt"
-        )
-        tokens = {k: v.to(self.device) for k, v in tokens.items()}
-        text_outputs = self.model.get_text_features(**tokens)
+    def text_encode(self, t):
+        inputs = self.tokenizer(t, padding="max_length", truncation=True, return_tensors="pt")
+        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        text_outputs = self.model.get_text_features(**inputs)
         pooled = text_outputs.pooler_output
         text_features = self.model.text_projection(pooled)
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
