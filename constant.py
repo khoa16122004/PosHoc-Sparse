@@ -32,20 +32,20 @@ VIT_PARAMS = {
 
 
 CLIP_MODELS = [
-    'ViT-B_32',
-    'ViT-B_16',
-    'ViT-L_14',
+    'openai/clip-vit-base-patch32',
+    'openai/clip-vit-base-patch16',
+    'openai/clip-vit-large-patch14',
 ]
 
 CLIP_PARAMS = {
-    'ViT-B_32': {
+    'openai/clip-vit-base-patch32': {
         'size': 224,
         'crop_size': 224,
         'mean': [0.48145466, 0.4578275, 0.40821073],
         'std': [0.26862954, 0.26130258, 0.27577711]
     },
     
-    'ViT-B_16': {
+    'openai/clip-vit-base-patch16': {
         'size': 224,
         'crop_size': 224,
         'mean': [0.48145466, 0.4578275, 0.40821073],
@@ -53,7 +53,7 @@ CLIP_PARAMS = {
     },
     
     
-    'ViT-L_14': {
+    'openai/clip-vit-large-patch14': {
         'size': 224,
         'crop_size': 224,
         'mean': [0.48145466, 0.4578275, 0.40821073],
