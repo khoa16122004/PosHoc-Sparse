@@ -97,8 +97,8 @@ def main(args):
         model = VisionViTModelWrapper(model, normalize)
         
     elif args.type == "CLIP":
-        model, spatial, normalize = get_CLIP_model(args.model_name)
-        model = VLModelWrapper(model, normalize, class_prompts)
+        model, spatial, normalize, tokenizer = get_CLIP_model(args.model_name)
+        model = VLModelWrapper(model, normalize, class_prompts, tokenizer)
 
         
     elif args.type == "OPENCLIP":
