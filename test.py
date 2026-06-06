@@ -22,7 +22,7 @@ explain_methods = [
     'attn_grad',
     'grad_cam'
 ]
-type = "SIGCLIP"
+type = "SIGLIP"
 
 # vision
 if type == "torchvision":
