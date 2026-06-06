@@ -120,7 +120,6 @@ class VisionViTModelWrapper(VisionModelWrapper):
         logits = outputs.logits
         score = logits[:, class_id].sum()
         attentions = outputs.attentions
-        print(attentions[-1].shape)
         cams = []
         
         for attn in attentions:
@@ -138,8 +137,6 @@ class VisionViTModelWrapper(VisionModelWrapper):
             
         saliency = rollout[:, 0, 1:]
         grid = int(saliency.shape[-1] ** 0.5)
-        print("Grid:", grid)
-        print("Saliency shape:", saliency.shape)
         saliency = saliency.reshape(x.shape[0], 1, grid, grid)
         saliency = F.interpolate(
             saliency,
@@ -333,5 +330,34 @@ class SIGLIPWrapper(VLModelWrapper):
             saliency.mean(dim=(1,2), keepdim=True)
             + 1e-8
         )
+        return logits, saliency.detach()
+    
+    def grad_cam(self, x, class_id):
+        outputs = self.predict(x, output_attentions=True)
+        logits = outputs.logits
+        score = logits[:, class_id].sum()
+        
+        # last attention
+        attn = outputs.attentions[-1]  # B x num_heads x num_tokens x num_tokens
+        grad = torch.autograd.grad(score, attn, retain_graph=True)[0]  # B x num_heads x num_tokens x num_tokens
+        
+        
+        weights = grad.mean(dim=-1, keepdim=True)  # B x num_heads x 1
+        cam = (attn * weights).sum(dim=1)  # B x num_patches
+        cam = F.relu(cam)
+        grid = int(cam.shape[-1] ** 0.5)
+        saliency = cam.reshape(x.shape[0], 1, grid, grid)
+        saliency = F.interpolate(
+            saliency,
+            size=x.shape[-2:],
+            mode="bilinear",
+            align_corners=False
+        ).squeeze(1)
+        
+        saliency /= (
+            saliency.mean(dim=(1,2), keepdim=True)
+            + 1e-8
+        )
+        
         return logits, saliency.detach()
     
