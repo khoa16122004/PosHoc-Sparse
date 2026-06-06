@@ -288,4 +288,50 @@ class SIGLIPWrapper(VLModelWrapper):
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         return text_features.detach().cpu()
 
+    def attention_grad(self, x, class_id):
+        outputs = self.predict(x, output_attentions=True)
+        logits = outputs.logits
+        score = logits[:, class_id].sum()
+        attentions = outputs.attentions
+
+        patch_scores = []
+        for attn in attentions:
+            grad = torch.autograd.grad(
+                score,
+                attn,
+                retain_graph=True
+            )[0]
+
+            # B,H,N,N
+            cam = (attn * grad).clamp(min=0)
+            cam = cam.mean(dim=1)
+            cam = cam.mean(dim=1)
+            patch_scores.append(cam)
+
+        saliency = torch.stack(
+            patch_scores,
+            dim=0
+        ).mean(dim=0)
+
+        grid = int(saliency.shape[-1] ** 0.5)
+
+        saliency = saliency.reshape(
+            x.shape[0],
+            1,
+            grid,
+            grid
+        )
+
+        saliency = F.interpolate(
+            saliency,
+            size=x.shape[-2:],
+            mode="bilinear",
+            align_corners=False
+        ).squeeze(1)
+        
+        saliency /= (
+            saliency.mean(dim=(1,2), keepdim=True)
+            + 1e-8
+        )
+        return logits, saliency.detach()
     
