@@ -121,6 +121,8 @@ class VisionViTModelWrapper(VisionModelWrapper):
         score = logits[:, class_id].sum()
         attentions = outputs.attentions
         cams = []
+        print(attentions)
+        print(logits.shape)
         
         for attn in attentions:
             grad = torch.autograd.grad(score, attn, retain_graph=True)[0]  # B x num_heads x num_tokens x num_tokens
