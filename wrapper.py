@@ -193,7 +193,7 @@ class VisionViTModelWrapper(VisionModelWrapper):
         
     
     
-class VLModelWrapper(BaseWrapper):
+class VLModelWrapper(VisionViTModelWrapper):
     def __init__(self, model, normalize, class_prompts, tokenizer=None, device='cuda'):
         super().__init__(model, normalize, device=device)
         self.class_prompts = class_prompts
@@ -215,38 +215,53 @@ class VLModelWrapper(BaseWrapper):
             textual_class_features.append(self.text_encode(prompts).mean(dim=0))        
         
         self.class_text_features = torch.stack(textual_class_features).to(self.device)
-        # print("Class text feautures shape: ", self.class_text_features.shape)
         
-    def predict(self, x):
+    def predict(self, x, output_attentions=False):
         x = self.normalize(x)
-        visual_features = self.vision_encode(x)
-        logits = visual_features @ self.class_text_features.T       
-        return logits
+        if not output_attentions:
+            vision_features = self.vision_encode(x).pooler_output
+            vision_features = vision_features / vision_features.norm(dim=-1, keepdim=True)
+            logits = vision_features @ self.class_text_features.T
+            return logits
+        
+        vision_outputs = self.vision_encode(x, output_attentions=True)
+        pooled = vision_outputs.pooler_output
+        vision_features = self.model.visual_projection(pooled)
+        vision_features = vision_features / vision_features.norm(dim=-1, keepdim=True)
+        logits = vision_features @ self.class_text_features.T
+        
+        return {
+            'logits': logits,
+            'attentions': vision_outputs.attentions,
+            'hidden_states': vision_outputs.hidden_states,
+        }
+        
     
-    
-    def vision_encode(self, x):
-        vision_features = self.model.encode_image(x)
+    def vision_encode(self, x, output_attentions=False):
+        vision_features = self.model.get_image_features(pixel_values=x, output_attentions=output_attentions)
         vision_features = vision_features / vision_features.norm(dim=-1, keepdim=True)
         return vision_features
     
-    def text_encode(self, t): # t lists
-        if self.tokenizer is not None:
-            t = self.tokenizer(t).cuda(self.device)
-        else:
-            t = clip.tokenize(t).cuda(self.device)
-        text_features = self.model.encode_text(t)
+    
+    def text_encode(self, texts):
+        tokens = self.tokenizer(
+            texts,
+            padding=True,
+            truncation=True,
+            return_tensors="pt"
+        )
+        tokens = {k: v.to(self.device) for k, v in tokens.items()}
+        text_features = self.model.get_text_features(**tokens)
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+
         return text_features.detach().cpu()
+            
+        
     
     
 class SIGLIPWrapper(VLModelWrapper):
     def __init__(self, model, normalize, class_prompts, tokenizer=None, device='cuda'):
         super().__init__(model, normalize, class_prompts, tokenizer=tokenizer, device=device)
-
-    def vision_encode(self, x):
-        image_features = self.model.get_image_features(pixel_values=x).pooler_output
-        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-        return image_features
     
     def text_encode(self, t):
         inputs = self.tokenizer(t, padding="max_length", truncation=True, return_tensors="pt")

@@ -22,7 +22,7 @@ explain_methods = [
     'attn_grad',
     'grad_cam'
 ]
-type = "vision_vit"
+type = "CLIP"
 
 # vision
 if type == "torchvision":
@@ -74,6 +74,7 @@ for method in explain_methods:
     print(f"Running {method}...")
     logits = model.predict(imgs)
     print(logits.shape)
+    print(torch.argmax(logits, dim=1))
 
     logits, saliency = model.predict_and_map(imgs, class_id=0)
     sal = saliency[0].detach().cpu().numpy()

@@ -12,7 +12,16 @@ from torchvision.datasets import ImageFolder
 import clip
 import open_clip
 import torchvision.models as tv_models
-from transformers import AutoModel, AutoProcessor, AutoTokenizer, BitsAndBytesConfig, SiglipModel, ViTForImageClassification
+
+from transformers import (
+    AutoModel, 
+    AutoTokenizer, 
+    SiglipModel, 
+    ViTForImageClassification,
+    CLIPModel,
+)
+
+
 
 _DATASET_NUM_CLASSES = {
     "imagenet": 1000,
@@ -110,16 +119,32 @@ def get_ViT_model(
     return model, spatial, normalize
 
 
+# def get_CLIP_model(
+#     model_name,
+#     ):
+    
+#     model, preprocess = clip.load(model_name.replace("_", "/"))
+#     model = model.cuda()
+#     spatial, normalize = split_VLMs_transform(CLIP_PARAMS[model_name])
+#     model.eval()
+#     return model, spatial, normalize
+
 def get_CLIP_model(
     model_name,
     ):
-    
-    model, preprocess = clip.load(model_name.replace("_", "/"))
-    model = model.cuda()
-    spatial, normalize = split_VLMs_transform(CLIP_PARAMS[model_name])
-    model.eval()
-    return model, spatial, normalize
 
+    model = CLIPModel.from_pretrained(
+        model_name,
+        attn_implementation="eager"
+    )
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = model.cuda()
+    model.eval()
+    
+    spatial, normalize = split_VLMs_transform(
+        CLIP_PARAMS[model_name]
+    )
+    return model, spatial, normalize, tokenizer
 
 def get_OPENCLIP_model(
     model_name,
