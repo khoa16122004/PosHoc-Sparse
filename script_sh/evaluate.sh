@@ -94,49 +94,50 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 
 
 
+# python script/evaluate.py \
+#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+#     --model-name  openai/clip-vit-base-patch32 \
+#     --batch-size 512 \
+#     --num-workers 4 \
+#     --output-dir evaluate_results \
+#     --type CLIP
+
+
 python script/evaluate.py \
     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name  openai/clip-vit-base-patch32 \
+    --model-name  openai/clip-vit-base-patch16 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type CLIP
+
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name  openai/clip-vit-large-patch14 \
     --batch-size 512 \
     --num-workers 4 \
     --output-dir evaluate_results \
     --type CLIP
 
 
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  ViT-B_16 \
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type CLIP
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name  google/siglip-base-patch16-224 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type SIGLIP
+
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name  google/siglip-large-patch16-256 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type SIGLIP
 
 
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  ViT-L_14 \
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type CLIP
 
-
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  ViT-B_32 \
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type OPENCLIP
-
-
-# python script/evaluate.py \
-#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  ViT-B_16 \
-#     --batch-size 512 \
-#     --num-workers 4 \
-#     --output-dir evaluate_results \
-#     --type OPENCLIP 
 
 
 
