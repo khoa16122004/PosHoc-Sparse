@@ -248,7 +248,7 @@ class VLModelWrapper(VisionViTModelWrapper):
     def text_encode(self, t):
         inputs = self.tokenizer(t, padding="max_length", truncation=True, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
-        text_outputs = self.model.get_text_features(**inputs)
+        text_outputs = self.model.text_model(inputs)
         pooled = text_outputs.pooler_output
         text_features = self.model.text_projection(pooled)
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)

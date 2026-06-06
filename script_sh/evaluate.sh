@@ -136,9 +136,7 @@ python script/evaluate.py \
 #     --batch-size 512 \
 #     --num-workers 4 \
 #     --output-dir evaluate_results \
-#     --type OPENCLIP
-/
-
+#     --type OPENCLIP 
 
 
 
