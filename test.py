@@ -76,7 +76,7 @@ for method in explain_methods:
     print(logits.shape)
     print(torch.argmax(logits, dim=1))
 
-    logits, saliency = model.predict_and_map(imgs, class_id=281)
+    logits, saliency = model.predict_and_map(imgs, class_id=283)
     sal = saliency[0].detach().cpu().numpy()
 
     plt.imshow(sal, cmap='jet')
