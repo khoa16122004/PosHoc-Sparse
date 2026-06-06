@@ -19,7 +19,8 @@ explain_methods = [
     # 'Grad_Input',
     # 'Int_Grad',
     # 'GradCAM',
-    'attn_grad'
+    'attn_grad',
+    'grad_cam'
 ]
 type = "vision_vit"
 
