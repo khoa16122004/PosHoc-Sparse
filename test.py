@@ -3,7 +3,7 @@ import torch
 import torchvision
 from matplotlib import pyplot as plt
 from util import ImageNetVal, get_CLIP_model, get_OPENCLIP_model, get_SIGLIP_model, get_torchvision_model, get_ViT_model
-from wrapper import SIGLIPWrapper, VisionModelWrapper, VLModelWrapper, VisionViTModelWrapper
+from wrapper import VisionModelWrapper, VLModelWrapper, VisionViTModelWrapper
 from constant import DEFAULT_VAL_DIR, IMAGENET_PROMPT_PATH, IMAGENET_FOLDER2_CLASSNAME
 from torch.utils.data import DataLoader
 import json
@@ -22,7 +22,7 @@ explain_methods = [
     'attn_grad',
     'grad_cam'
 ]
-type = "CLIP"
+type = "SIGCLIP"
 
 # vision
 if type == "torchvision":
@@ -44,7 +44,7 @@ elif type == "OPENCLIP":
 
 elif type == "SIGLIP":
     model, spatial, normalize, tokenizer = get_SIGLIP_model("google/siglip-base-patch16-224")
-    model = SIGLIPWrapper(model, normalize, class_prompts, tokenizer)
+    model = VLModelWrapper(model, normalize, class_prompts, tokenizer)
 
 
 
