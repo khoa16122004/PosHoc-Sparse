@@ -120,6 +120,7 @@ class VisionViTModelWrapper(VisionModelWrapper):
         logits = outputs.logits
         score = logits[:, class_id].sum()
         attentions = outputs.attentions
+        print(attentions[-1].shape)
         cams = []
         
         for attn in attentions:
