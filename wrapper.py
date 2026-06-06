@@ -252,7 +252,9 @@ class VLModelWrapper(VisionViTModelWrapper):
             return_tensors="pt"
         )
         tokens = {k: v.to(self.device) for k, v in tokens.items()}
-        text_features = self.model.get_text_features(**tokens)
+        text_outputs = self.model.get_text_features(**tokens)
+        pooled = text_outputs.pooler_output
+        text_features = self.model.text_projection(pooled)
         text_features = text_features / text_features.norm(dim=-1, keepdim=True)
 
         return text_features.detach().cpu()
