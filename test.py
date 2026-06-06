@@ -61,7 +61,7 @@ if type in ["CLIP", "OPENCLIP", "SIGLIP"]:
     
 
 img = Image.open(
-    "imgs/tench.jpg"
+    "imgs/tabby.jpg"
 )
 
 img = spatial(img).unsqueeze(0).cuda()
@@ -76,7 +76,7 @@ for method in explain_methods:
     print(logits.shape)
     print(torch.argmax(logits, dim=1))
 
-    logits, saliency = model.predict_and_map(imgs, class_id=0)
+    logits, saliency = model.predict_and_map(imgs, class_id=281)
     sal = saliency[0].detach().cpu().numpy()
 
     plt.imshow(sal, cmap='jet')
