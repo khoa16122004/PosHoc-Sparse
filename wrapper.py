@@ -121,7 +121,7 @@ class VisionViTModelWrapper(VisionModelWrapper):
         score = logits[:, class_id].sum()
         attentions = outputs.attentions
         cams = []
-        print(attentions)
+        print(attentions.shape)
         print(logits.shape)
         
         for attn in attentions:
@@ -139,6 +139,8 @@ class VisionViTModelWrapper(VisionModelWrapper):
             
         saliency = rollout[:, 0, 1:]
         grid = int(saliency.shape[-1] ** 0.5)
+        print("Grid:", grid)
+        print("Saliency shape:", saliency.shape)
         saliency = saliency.reshape(x.shape[0], 1, grid, grid)
         saliency = F.interpolate(
             saliency,
