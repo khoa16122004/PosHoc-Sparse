@@ -61,7 +61,7 @@ if type in ["CLIP", "OPENCLIP", "SIGLIP"]:
     
 
 img = Image.open(
-    "imgs/tench.jpg"
+    "imgs/bea_eater.jpg"
 )
 
 img = spatial(img).unsqueeze(0).cuda()
@@ -73,10 +73,10 @@ for method in explain_methods:
 
     print(f"Running {method}...")
     logits = model.predict(imgs)
-    print(logits.shape)
-    print(torch.argmax(logits, dim=1))
+    class_id = torch.argmax(logits, dim=1)[0].item()
 
-    logits, saliency = model.predict_and_map(imgs, class_id=0)
+
+    logits, saliency = model.predict_and_map(imgs, class_id=class_id)
     sal = saliency[0].detach().cpu().numpy()
 
     plt.imshow(sal, cmap='jet')
@@ -86,3 +86,4 @@ for method in explain_methods:
         bbox_inches='tight',
         pad_inches=0
     )
+    print(f"Saved saliency map for {method} at saliency_{method}.png")
