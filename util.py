@@ -169,6 +169,7 @@ def get_SIGLIP_model(
     model_name,
     ):
     model = SiglipModel.from_pretrained(model_name)
+    model.config.output_attentions = True
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     spatial, normalize = split_SIGLIP_transform(SIGLIP_PARAMS[model_name])
     model = model.cuda()
