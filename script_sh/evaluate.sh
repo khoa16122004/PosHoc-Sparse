@@ -75,32 +75,32 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 #     --output-dir evaluate_results \
 #     --type torchvision
 
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name google/vit-base-patch16-224 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type ViT
-
-python script/evaluate.py \
-    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-    --model-name google/vit-large-patch16-224 \
-    --batch-size 512 \
-    --num-workers 4 \
-    --output-dir evaluate_results \
-    --type ViT
-
-
-
-
 # python script/evaluate.py \
 #     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
-#     --model-name  ViT-B_32 \
+#     --model-name google/vit-base-patch16-224 \
 #     --batch-size 512 \
 #     --num-workers 4 \
 #     --output-dir evaluate_results \
-#     --type CLIP
+#     --type ViT
+
+# python script/evaluate.py \
+#     --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+#     --model-name google/vit-large-patch16-224 \
+#     --batch-size 512 \
+#     --num-workers 4 \
+#     --output-dir evaluate_results \
+#     --type ViT
+
+
+
+
+python script/evaluate.py \
+    --val-dir /datastore/elo/quanphm/dataset/ImageNet1K/val/ \
+    --model-name  openai/clip-vit-base-patch32 \
+    --batch-size 512 \
+    --num-workers 4 \
+    --output-dir evaluate_results \
+    --type CLIP
 
 
 # python script/evaluate.py \
