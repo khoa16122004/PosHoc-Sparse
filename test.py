@@ -74,7 +74,7 @@ for method in explain_methods:
     print(f"Running {method}...")
     logits = model.predict(imgs)
     class_id = torch.argmax(logits, dim=1)[0].item()
-
+    print(f"Predicted class ID: {class_id}")
 
     logits, saliency = model.predict_and_map(imgs, class_id=class_id)
     sal = saliency[0].detach().cpu().numpy()
