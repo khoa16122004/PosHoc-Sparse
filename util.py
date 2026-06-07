@@ -15,6 +15,7 @@ import open_clip
 import torchvision.models as tv_models
 from pathlib import Path
 from typing import Any
+from matplotlib import cm
 
 from transformers import (
     AutoModel, 
@@ -215,6 +216,32 @@ def compose_grid_image(components: list[dict[str, Any]], cell_size: int) -> Imag
             grid_image.paste(tile, position)
 
     return grid_image
+
+
+def tensor_to_rgb_array(image_tensor: torch.Tensor) -> np.ndarray:
+    image = image_tensor.detach().cpu().clamp(0, 1)
+    return image.permute(1, 2, 0).numpy()
+
+
+def saliency_to_jet_array(saliency: torch.Tensor) -> np.ndarray:
+    saliency_np = saliency.detach().cpu().float().numpy()
+    saliency_np = saliency_np - saliency_np.min()
+    saliency_np = saliency_np / (saliency_np.max() + 1e-8)
+    return cm.get_cmap("jet")(saliency_np)[..., :3]
+
+
+def blend_overlay(base_rgb: np.ndarray, heatmap_rgb: np.ndarray, alpha: float) -> np.ndarray:
+    if not 0.0 <= alpha <= 1.0:
+        raise ValueError("overlay_alpha must be in [0, 1].")
+    return (1.0 - alpha) * base_rgb + alpha * heatmap_rgb
+
+
+def save_image_with_plt(image: np.ndarray, output_path: Path, cmap: str | None = None) -> None:
+    plt.figure(figsize=(4, 4))
+    plt.imshow(image, cmap=cmap)
+    plt.axis("off")
+    plt.savefig(output_path, bbox_inches="tight", pad_inches=0)
+    plt.close()
 
 def compute_grid_scores(
     explain_map : torch.Tensor,
