@@ -14,6 +14,7 @@ import clip
 import open_clip
 import torchvision.models as tv_models
 from pathlib import Path
+from typing import Any
 
 from transformers import (
     AutoModel, 

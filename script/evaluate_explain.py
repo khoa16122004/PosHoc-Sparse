@@ -195,7 +195,17 @@ def evaluate_grid(
         with torch.enable_grad():
             _, saliency = model.predict_and_map(grid_tensor, class_id=target_class)
 
-        cell_scores = compute_grid_scores(saliency, single_shape=cell_size)[0]
+        grid_side = int(len(components) ** 0.5)
+        if grid_side * grid_side != len(components):
+            raise ValueError("Grid evaluation expects a square number of components.")
+
+        pooled_cell_size = saliency.shape[-1] // grid_side
+        if pooled_cell_size <= 0:
+            raise ValueError(
+                f"Invalid pooled cell size derived from saliency shape {tuple(saliency.shape)}."
+            )
+
+        cell_scores = compute_grid_scores(saliency, single_shape=pooled_cell_size)[0]
         predicted_cell = int(cell_scores.argmax().item())
         target_score = float(cell_scores[cell_index].item())
 
