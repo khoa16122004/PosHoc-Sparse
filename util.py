@@ -13,6 +13,7 @@ from torchvision.datasets import ImageFolder
 import clip
 import open_clip
 import torchvision.models as tv_models
+from pathlib import Path
 
 from transformers import (
     AutoModel, 
