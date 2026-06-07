@@ -243,6 +243,10 @@ def save_image_with_plt(image: np.ndarray, output_path: Path, cmap: str | None =
     plt.savefig(output_path, bbox_inches="tight", pad_inches=0)
     plt.close()
 
+
+def save_tensor(tensor: torch.Tensor, output_path: Path) -> None:
+    torch.save(tensor.detach().cpu(), output_path)
+
 def compute_grid_scores(
     explain_map : torch.Tensor,
     single_shape: int,

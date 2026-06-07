@@ -25,6 +25,7 @@ from util import (
     blend_overlay,
     saliency_to_jet_array,
     save_image_with_plt,
+    save_tensor,
     tensor_to_rgb_array,
 )
 from wrapper import SIGLIPWrapper, VLModelWrapper, VisionModelWrapper, VisionViTModelWrapper
@@ -201,11 +202,13 @@ def export_single_record(
     sample_dir.mkdir(parents=True, exist_ok=True)
 
     spatial_path = sample_dir / "input_spatial.png"
+    saliency_tensor_path = sample_dir / "saliency_map.pt"
     heatmap_path = sample_dir / "explain_jet.png"
     overlay_path = sample_dir / "overlay.png"
     metadata_path = sample_dir / "metadata.json"
 
     save_image_with_plt(spatial_image, spatial_path)
+    save_tensor(saliency_map, saliency_tensor_path)
     save_image_with_plt(heatmap_image, heatmap_path)
     save_image_with_plt(overlay_image, overlay_path)
 
@@ -217,6 +220,7 @@ def export_single_record(
         "original_class": record.get("original_class"),
         "folder_name": record.get("folder_name"),
         "input_spatial_path": str(spatial_path),
+        "saliency_tensor_path": str(saliency_tensor_path),
         "explain_jet_path": str(heatmap_path),
         "overlay_path": str(overlay_path),
     }
