@@ -6,6 +6,7 @@ import torchvision.transforms as T
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from PIL import Image
 from torchvision.datasets import ImageFolder
@@ -191,6 +192,50 @@ class ImageNetVal(ImageFolder):
 
 
 
+def compose_grid_image(components: list[dict[str, Any]], cell_size: int) -> Image.Image:
+    if cell_size <= 0:
+        raise ValueError("cell_size must be greater than 0.")
+
+    grid_image = Image.new("RGB", (cell_size * 2, cell_size * 2))
+    positions = [(0, 0), (cell_size, 0), (0, cell_size), (cell_size, cell_size)]
+
+    for component, position in zip(components, positions):
+        img_path = component.get("img_path")
+        if not img_path:
+            raise ValueError("Each component must include an img_path.")
+
+        source_path = Path(img_path)
+        if not source_path.exists():
+            raise FileNotFoundError(f"Image not found: {source_path}")
+
+        with Image.open(source_path) as source_image:
+            tile = source_image.convert("RGB").resize((cell_size, cell_size))
+            grid_image.paste(tile, position)
+
+    return grid_image
+
+def compute_grid_scores(
+    explain_map : torch.Tensor,
+    single_shape: int,
+) -> torch.Tensor:
+    if single_shape <= 0:
+        raise ValueError("single_shape must be greater than 0.")
+
+    if explain_map.ndim == 3:
+        explain_map = explain_map.unsqueeze(1)
+    elif explain_map.ndim != 4:
+        raise ValueError(
+            f"explain_map must have shape [B, H, W] or [B, 1, H, W], got {tuple(explain_map.shape)}"
+        )
+
+    positive_maps = explain_map.clamp(min=0)
+    pooled = F.avg_pool2d(
+        positive_maps,
+        kernel_size=single_shape,
+        stride=single_shape,
+    ).flatten(start_dim=1)
+    totals = pooled.sum(dim=1, keepdim=True)
+    return torch.where(totals > 0, pooled / totals, torch.zeros_like(pooled))
 
 if __name__ == "__main__":
     # model = get_torchvision_model("resnet18", pretrained=True)
