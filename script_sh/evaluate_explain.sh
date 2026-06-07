@@ -54,7 +54,6 @@ python script/evaluate_explain.py \
     --grid-path evaluate_results/torchvision/vgg16/random_grids.json \
     --model-name vgg16 \
     --method Grad \
-    --num-workers 4 \
     --type torchvision \
     --output-dir Explain_results/torchvision/vgg16/grad \
     --save-heatmaps \
