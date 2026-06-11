@@ -41,7 +41,7 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 cd /datastore/elo/khoatn/PosHoc-Sparse || exit 1
 
 IMAGE_PATH="imgs/bea_eater.jpg"
-TEXT_PROMPT="wing of the bird"
+TEXT_PROMPT="wings"
 MODEL_NAME="${3:-openai/clip-vit-base-patch16}"
 METHOD="${4:-attn_grad}"
 OUTPUT_DIR="${5:-saliency_result/single_clip}"
