@@ -42,7 +42,7 @@ cd /datastore/elo/khoatn/PosHoc-Sparse || exit 1
 
 IMAGE_PATH="imgs/dog_cat.png"
 TEXT_PROMPT="dog"
-MODEL_NAME="${3:-openai/clip-vit-base-patch16}"
+MODEL_NAME="${3:-openai/clip-vit-large-patch14}"
 METHOD="${4:-attn_grad}"
 OUTPUT_DIR="${5:-saliency_result/single_clip}"
 OVERLAY_ALPHA="${6:-0.45}"
