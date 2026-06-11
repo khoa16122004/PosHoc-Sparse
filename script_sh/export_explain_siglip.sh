@@ -50,7 +50,7 @@ MODELS=(
     "google/siglip-large-patch16-256"
 )
 
-METHODS=("attn_grad" "grad_cam")
+METHODS=("attn_grad")
 
 for model_name in "${MODELS[@]}"; do
     input_json="evaluate_results/SIGLIP/$model_name/selected_1000.json"

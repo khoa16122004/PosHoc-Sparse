@@ -30,7 +30,7 @@ elif [ $EXIT_CODE -eq 11 ]; then
     exit 1
 fi
 BEST_GPU=$CHECK_OUT
-echo "✅ Job $SLURM_JOB_ID bắt đầu trên GPU: $BEST_GPU"
+echo "Job $SLURM_JOB_ID starts on GPU: $BEST_GPU"
 
 export CUDA_MPS_PIPE_DIRECTORY=/tmp/nvidia-mps-job$SLURM_JOB_ID
 export CUDA_MPS_LOG_DIRECTORY=/tmp/nvidia-mps-log-job$SLURM_JOB_ID
@@ -40,36 +40,28 @@ export CUDA_VISIBLE_DEVICES=$BEST_GPU
 
 cd /datastore/elo/khoatn/PosHoc-Sparse || exit 1
 
-VAL_DIR=/datastore/elo/quanphm/dataset/ImageNet1K/val/
-OUTPUT_DIR=saliency_results
-TARGET_SOURCE=original_class
-OVERLAY_ALPHA=0.45
+IMAGE_PATH="imgs/bea_eater.jpg"
+TEXT_PROMPT="wing of the bird"
+MODEL_NAME="${3:-openai/clip-vit-base-patch16}"
+METHOD="${4:-attn_grad}"
+OUTPUT_DIR="${5:-saliency_result/single_clip}"
+OVERLAY_ALPHA="${6:-0.45}"
 
-MODELS=(
-    "openai/clip-vit-base-patch32"
-    "openai/clip-vit-base-patch16"
-    "openai/clip-vit-large-patch14"
-)
+if [ -z "$IMAGE_PATH" ] || [ -z "$TEXT_PROMPT" ]; then
+    echo "Usage: sbatch script_sh/export_explain_clip_text.sh <image_path> <text_prompt> [model_name] [method] [output_dir] [overlay_alpha]"
+    exit 1
+fi
 
-METHODS=("attn_grad")
+echo "Running CLIP single-image explanation"
+echo "image=$IMAGE_PATH"
+echo "text=$TEXT_PROMPT"
+echo "model=$MODEL_NAME"
+echo "method=$METHOD"
 
-for model_name in "${MODELS[@]}"; do
-    input_json="evaluate_results/CLIP/$model_name/selected_1000.json"
-    if [ ! -f "$input_json" ]; then
-        echo "Skip missing input: $input_json"
-        continue
-    fi
-
-    for method in "${METHODS[@]}"; do
-        echo "Running CLIP | model=$model_name | method=$method"
-        python script/export_single_explain.py \
-            --input-json "$input_json" \
-            --val-dir "$VAL_DIR" \
-            --model-name "$model_name" \
-            --method "$method" \
-            --type CLIP \
-            --target-source "$TARGET_SOURCE" \
-            --overlay-alpha "$OVERLAY_ALPHA" \
-            --output-dir "$OUTPUT_DIR"
-    done
-done
+python script/explain_clip_by_text.py \
+    --image-path "$IMAGE_PATH" \
+    --text "$TEXT_PROMPT" \
+    --model-name "$MODEL_NAME" \
+    --method "$METHOD" \
+    --output-dir "$OUTPUT_DIR" \
+    --overlay-alpha "$OVERLAY_ALPHA"
